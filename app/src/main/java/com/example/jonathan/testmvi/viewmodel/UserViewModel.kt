@@ -20,15 +20,15 @@ class UserViewModel : ViewModel() {
                     kotlinx.coroutines.delay(1000)
                     _state.value = _state.value.copy(
                         name = "John Doe",
-                        email = "john.doe@example.com",
+                        age = 26,
                         isLoading = false
                     )
                 }
                 is UserIntent.UpdateName -> {
                     _state.value = _state.value.copy(name = intent.name)
                 }
-                is UserIntent.UpdateEmail -> {
-                    _state.value = _state.value.copy(email = intent.email)
+                is UserIntent.UpdateAge -> {
+                    _state.value = _state.value.copy(age = intent.age)
                 }
             }
         }
