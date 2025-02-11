@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun UserScreen(viewModel: UserViewModel) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.userState.collectAsState()
 
     val scope = rememberCoroutineScope()
 

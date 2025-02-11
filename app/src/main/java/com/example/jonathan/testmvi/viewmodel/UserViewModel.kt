@@ -8,29 +8,34 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class UserViewModel : ViewModel() {
-    private val _state = MutableStateFlow(UserState())
-    val state: StateFlow<UserState> = _state.asStateFlow()
+    private val _userState = MutableStateFlow(UserState())
+    val userState: StateFlow<UserState> = _userState.asStateFlow()
 
     fun handleIntent(intent: UserIntent) {
         viewModelScope.launch {
             when (intent) {
                 is UserIntent.LoadUser -> {
-                    _state.value = _state.value.copy(isLoading = true)
+                    _userState.value = _userState.value.copy(isLoading = true)
                     // Simulate data loading
                     kotlinx.coroutines.delay(1000)
-                    _state.value = _state.value.copy(
-                        name = "John Doe",
-                        age = 26,
+                    _userState.value = _userState.value.copy(
+                        name = BASE_USER_NAME + userAge,
+                        age = userAge++,
                         isLoading = false
                     )
                 }
                 is UserIntent.UpdateName -> {
-                    _state.value = _state.value.copy(name = intent.name)
+                    _userState.value = _userState.value.copy(name = intent.name)
                 }
                 is UserIntent.UpdateAge -> {
-                    _state.value = _state.value.copy(age = intent.age)
+                    _userState.value = _userState.value.copy(age = intent.age)
                 }
             }
         }
+    }
+
+    companion object {
+        private const val BASE_USER_NAME = "User Name"
+        private var userAge = 0
     }
 }
