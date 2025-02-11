@@ -41,7 +41,8 @@ fun UserScreen(viewModel: UserViewModel) {
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
                 value = state.age.toString(),
-                onValueChange = { scope.launch { viewModel.handleIntent(UserIntent.UpdateAge(it.toInt())) } },
+                onValueChange = { scope.launch { viewModel.handleIntent(UserIntent.UpdateAge(
+                    if (it.isBlank()) 0 else it.toIntOrNull() ?: 0)) } },
                 label = { Text("Age") }
             )
             Spacer(modifier = Modifier.height(16.dp))
