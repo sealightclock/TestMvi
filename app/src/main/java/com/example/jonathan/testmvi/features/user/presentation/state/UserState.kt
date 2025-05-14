@@ -1,4 +1,4 @@
-package com.example.jonathan.testmvi.features.user.presentation.model
+package com.example.jonathan.testmvi.features.user.presentation.state
 
 /**
  * Represents the state of the user screen: User + State:

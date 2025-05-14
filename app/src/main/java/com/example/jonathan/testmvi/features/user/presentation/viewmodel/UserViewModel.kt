@@ -3,7 +3,7 @@ package com.example.jonathan.testmvi.features.user.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.jonathan.testmvi.features.user.presentation.intent.UserIntent
-import com.example.jonathan.testmvi.features.user.presentation.model.UserState
+import com.example.jonathan.testmvi.features.user.presentation.state.UserState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
