@@ -1,4 +1,4 @@
-package com.example.jonathan.testmvi.view
+package com.example.jonathan.testmvi.features.user.presentation.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,8 +16,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.jonathan.testmvi.intent.UserIntent
-import com.example.jonathan.testmvi.viewmodel.UserViewModel
+import com.example.jonathan.testmvi.features.user.presentation.intent.UserIntent
+import com.example.jonathan.testmvi.features.user.presentation.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
 @Composable

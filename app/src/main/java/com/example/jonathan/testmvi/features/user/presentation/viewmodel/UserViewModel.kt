@@ -1,9 +1,10 @@
-package com.example.jonathan.testmvi.viewmodel
+package com.example.jonathan.testmvi.features.user.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.jonathan.testmvi.intent.UserIntent
-import com.example.jonathan.testmvi.model.UserState
+import com.example.jonathan.testmvi.features.user.presentation.intent.UserIntent
+import com.example.jonathan.testmvi.features.user.presentation.model.UserState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -17,7 +18,7 @@ class UserViewModel : ViewModel() {
                 is UserIntent.LoadUser -> {
                     _userState.value = _userState.value.copy(isLoading = true)
                     // Simulate data loading
-                    kotlinx.coroutines.delay(1000)
+                    delay(1000)
                     _userState.value = _userState.value.copy(
                         name = BASE_USER_NAME + userAge,
                         age = userAge++,

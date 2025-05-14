@@ -1,4 +1,4 @@
-package com.example.jonathan.testmvi.intent
+package com.example.jonathan.testmvi.features.user.presentation.intent
 
 /**
  * Represents the user intent:
