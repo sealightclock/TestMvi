@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class UserViewModel : ViewModel() {
+    private var userAge = 0
+
     private val _userState = MutableStateFlow(UserState())
     val userState: StateFlow<UserState> = _userState.asStateFlow()
 
@@ -37,6 +39,5 @@ class UserViewModel : ViewModel() {
 
     companion object {
         private const val BASE_USER_NAME = "User Name"
-        private var userAge = 0
     }
 }
