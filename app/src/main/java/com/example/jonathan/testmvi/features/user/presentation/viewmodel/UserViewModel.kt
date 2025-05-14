@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class UserViewModel : ViewModel() {
-    private var userAge = 0
+    private var userAge = 0 // TODO: For ViewModel, it is better to use Int rather than String.
 
     private val _userState = MutableStateFlow(UserState())
     val userState: StateFlow<UserState> = _userState.asStateFlow()
@@ -23,7 +23,7 @@ class UserViewModel : ViewModel() {
                     delay(1000)
                     _userState.value = _userState.value.copy(
                         name = BASE_USER_NAME + userAge,
-                        age = userAge++,
+                        age = (userAge++).toString(),
                         isLoading = false
                     )
                 }
