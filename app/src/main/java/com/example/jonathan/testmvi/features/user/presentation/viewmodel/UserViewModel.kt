@@ -20,12 +20,20 @@ class UserViewModel : ViewModel() {
                 is UserIntent.LoadUser -> {
                     _userState.value = _userState.value.copy(isLoading = true)
                     // Simulate data loading
-                    delay(1000)
-                    _userState.value = _userState.value.copy(
-                        name = BASE_USER_NAME + userAge,
-                        age = (userAge++).toString(),
-                        isLoading = false
-                    )
+                    try {
+                        delay(1000)
+                        if (userAge >= 5) throw Exception("Too many users loaded.")
+                        _userState.value = _userState.value.copy(
+                            name = BASE_USER_NAME + userAge,
+                            age = (userAge++).toString(),
+                            isLoading = false
+                        )
+                    } catch (e: Exception) {
+                        _userState.value = _userState.value.copy(
+                            isLoading = false,
+                            error = e.message
+                        )
+                    }
                 }
                 is UserIntent.UpdateName -> {
                     _userState.value = _userState.value.copy(name = intent.name)
