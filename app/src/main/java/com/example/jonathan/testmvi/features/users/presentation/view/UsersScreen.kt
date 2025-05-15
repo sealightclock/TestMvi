@@ -1,4 +1,4 @@
-package com.example.jonathan.testmvi.features.user.presentation.view
+package com.example.jonathan.testmvi.features.users.presentation.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -9,9 +9,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.jonathan.testmvi.features.user.presentation.intent.UserIntent
-import com.example.jonathan.testmvi.features.user.presentation.state.UserState
-import com.example.jonathan.testmvi.features.user.presentation.viewmodel.UserViewModel
+import com.example.jonathan.testmvi.features.users.presentation.intent.UsersIntent
+import com.example.jonathan.testmvi.features.users.presentation.state.UsersState
+import com.example.jonathan.testmvi.features.users.presentation.viewmodel.UsersViewModel
 import kotlinx.coroutines.launch
 
 /**
@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
  * For testing or previews, you can optionally pass in a custom ViewModel instance.
  */
 @Composable
-fun UserScreen(viewModel: UserViewModel = viewModel()) {
+fun UserScreen(viewModel: UsersViewModel = viewModel()) {
     // Get the lifecycle owner of this Composable
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -34,7 +34,7 @@ fun UserScreen(viewModel: UserViewModel = viewModel()) {
     }
 
     // Collect the state safely during composition (lifecycle-aware)
-    val state by lifecycleAwareFlow.collectAsState(initial = UserState())
+    val state by lifecycleAwareFlow.collectAsState(initial = UsersState())
 
     // Create a coroutine scope for dispatching user intents
     val scope = rememberCoroutineScope()
@@ -44,7 +44,7 @@ fun UserScreen(viewModel: UserViewModel = viewModel()) {
     val onNameChange: (String) -> Unit = remember(viewModel, scope) {
         { name ->
             scope.launch {
-                viewModel.handleIntent(UserIntent.UpdateName(name))
+                viewModel.handleIntent(UsersIntent.UpdateName(name))
             }
         }
     }
@@ -52,7 +52,7 @@ fun UserScreen(viewModel: UserViewModel = viewModel()) {
     val onAgeChange: (String) -> Unit = remember(viewModel, scope) {
         { age ->
             scope.launch {
-                viewModel.handleIntent(UserIntent.UpdateAge(age))
+                viewModel.handleIntent(UsersIntent.UpdateAge(age))
             }
         }
     }
@@ -60,7 +60,7 @@ fun UserScreen(viewModel: UserViewModel = viewModel()) {
     val onLoadUser: () -> Unit = remember(viewModel, scope) {
         {
             scope.launch {
-                viewModel.handleIntent(UserIntent.LoadUser)
+                viewModel.handleIntent(UsersIntent.LoadUser)
             }
         }
     }

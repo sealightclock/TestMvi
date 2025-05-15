@@ -1,9 +1,9 @@
-package com.example.jonathan.testmvi.features.user.presentation.viewmodel
+package com.example.jonathan.testmvi.features.users.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.jonathan.testmvi.features.user.presentation.intent.UserIntent
-import com.example.jonathan.testmvi.features.user.presentation.state.UserState
+import com.example.jonathan.testmvi.features.users.presentation.intent.UsersIntent
+import com.example.jonathan.testmvi.features.users.presentation.state.UsersState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,21 +14,21 @@ import kotlinx.coroutines.launch
  * ViewModel for handling user intents and emitting updated UI state.
  * Uses MVI architecture: Intent -> ViewModel -> State -> View.
  */
-class UserViewModel : ViewModel() {
+class UsersViewModel : ViewModel() {
 
     // Internal mutable state flow; holds the entire UI state
-    private val _userState = MutableStateFlow(UserState())
+    private val _userState = MutableStateFlow(UsersState())
 
     // Public read-only state flow exposed to the UI
-    val userState: StateFlow<UserState> = _userState.asStateFlow()
+    val userState: StateFlow<UsersState> = _userState.asStateFlow()
 
     /**
      * Handles user intent dispatched from the UI.
      */
-    fun handleIntent(intent: UserIntent) {
+    fun handleIntent(intent: UsersIntent) {
         viewModelScope.launch {
             when (intent) {
-                is UserIntent.LoadUser -> {
+                is UsersIntent.LoadUser -> {
                     // Show loading spinner
                     _userState.value = _userState.value.copy(isLoading = true)
 
@@ -62,12 +62,12 @@ class UserViewModel : ViewModel() {
                     }
                 }
 
-                is UserIntent.UpdateName -> {
+                is UsersIntent.UpdateName -> {
                     // Update name input from user
                     _userState.value = _userState.value.copy(name = intent.name)
                 }
 
-                is UserIntent.UpdateAge -> {
+                is UsersIntent.UpdateAge -> {
                     // Update age input from user (as raw string to support safe editing)
                     _userState.value = _userState.value.copy(age = intent.age)
                 }

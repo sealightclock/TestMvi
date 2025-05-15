@@ -1,9 +1,9 @@
-package com.example.jonathan.testmvi.features.user.presentation.state
+package com.example.jonathan.testmvi.features.users.presentation.state
 
 /**
  * Represents the state of the user screen: User + State:
  */
-data class UserState(
+data class UsersState(
     // User data:
     val name: String = "",
     val age: String = "0", // TODO: For State, it is better to use String rather than Int
