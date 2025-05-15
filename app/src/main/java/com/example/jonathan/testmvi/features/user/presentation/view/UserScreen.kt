@@ -1,21 +1,8 @@
 package com.example.jonathan.testmvi.features.user.presentation.view
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -28,48 +15,83 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun UserScreen(viewModel: UserViewModel) {
-    // Get the LifecycleOwner of the current Composable
+    // Get the lifecycle owner of this Composable
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    // Convert the StateFlow into a Lifecycle-aware Flow:
+    // Create a lifecycle-aware version of the ViewModel's userState flow
     val lifecycleAwareFlow = remember(viewModel, lifecycleOwner) {
         viewModel.userState.flowWithLifecycle(
             lifecycle = lifecycleOwner.lifecycle,
-            minActiveState = Lifecycle.State.STARTED // Only collect when screen is visible
+            minActiveState = Lifecycle.State.STARTED
         )
     }
 
-    // Collect the state safely during composition (lifecycle-aware)
+    // Collect the flow into a Compose state variable
     val state by lifecycleAwareFlow.collectAsState(initial = UserState())
 
-    // Create a coroutine scope for dispatching user intents
+    // Create a coroutine scope for dispatching intents
     val scope = rememberCoroutineScope()
 
+    // === Extract intent dispatch logic into local lambdas ===
+
+    // Lambda to update name (must return (String) -> Unit)
+    val onNameChange: (String) -> Unit = remember(viewModel, scope) {
+        { name ->
+            scope.launch {
+                viewModel.handleIntent(UserIntent.UpdateName(name))
+            }
+        }
+    }
+
+    // Lambda to update age
+    val onAgeChange: (String) -> Unit = remember(viewModel, scope) {
+        { age ->
+            scope.launch {
+                viewModel.handleIntent(UserIntent.UpdateAge(age))
+            }
+        }
+    }
+
+    // Lambda to load user data
+    val onLoadUser: () -> Unit = remember(viewModel, scope) {
+        {
+            scope.launch {
+                viewModel.handleIntent(UserIntent.LoadUser)
+            }
+        }
+    }
+
+    // === UI layout starts here ===
+
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
         if (state.isLoading) {
             CircularProgressIndicator()
         } else {
-            // Text field for name input
+            // Name input field (value: String, onValueChange: (String) -> Unit)
             TextField(
                 value = state.name,
-                onValueChange = { scope.launch { viewModel.handleIntent(UserIntent.UpdateName(it)) } },
+                onValueChange = onNameChange,
                 label = { Text("Name") }
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Text field for age input
+            // Age input field
             TextField(
                 value = state.age,
-                onValueChange = { scope.launch { viewModel.handleIntent(UserIntent.UpdateAge(it)) } },
+                onValueChange = onAgeChange,
                 label = { Text("Age") }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = { scope.launch { viewModel.handleIntent(UserIntent.LoadUser) } }) {
+
+            // Load User button
+            Button(onClick = onLoadUser) {
                 Text("Load User")
             }
         }
