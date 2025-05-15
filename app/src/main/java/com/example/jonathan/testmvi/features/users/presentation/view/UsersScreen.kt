@@ -1,6 +1,8 @@
 package com.example.jonathan.testmvi.features.users.presentation.view
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -15,68 +17,42 @@ import com.example.jonathan.testmvi.features.users.presentation.viewmodel.UsersV
 import kotlinx.coroutines.launch
 
 /**
- * Composable function for displaying the User screen.
- *
- * By default, the UserViewModel is created internally using the viewModel() delegate.
- * For testing or previews, you can optionally pass in a custom ViewModel instance.
+ * Displays a form for adding users and a list of created users.
  */
 @Composable
 fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
-    // Get the lifecycle owner of this Composable
     val lifecycleOwner = LocalLifecycleOwner.current
-
-    // Convert the StateFlow into a Lifecycle-aware Flow
     val lifecycleAwareFlow = remember(viewModel, lifecycleOwner) {
         viewModel.userState.flowWithLifecycle(
             lifecycle = lifecycleOwner.lifecycle,
             minActiveState = Lifecycle.State.STARTED
         )
     }
-
-    // Collect the state safely during composition (lifecycle-aware)
     val state by lifecycleAwareFlow.collectAsState(initial = UsersState())
-
-    // Create a coroutine scope for dispatching user intents
     val scope = rememberCoroutineScope()
 
-    // === Extract intent dispatch logic into lambdas ===
-
     val onNameChange: (String) -> Unit = remember(viewModel, scope) {
-        { name ->
-            scope.launch {
-                viewModel.handleIntent(UsersIntent.UpdateName(name))
-            }
-        }
+        { name -> scope.launch { viewModel.handleIntent(UsersIntent.UpdateName(name)) } }
     }
 
     val onAgeChange: (String) -> Unit = remember(viewModel, scope) {
-        { age ->
-            scope.launch {
-                viewModel.handleIntent(UsersIntent.UpdateAge(age))
-            }
-        }
+        { age -> scope.launch { viewModel.handleIntent(UsersIntent.UpdateAge(age)) } }
     }
 
     val onLoadUser: () -> Unit = remember(viewModel, scope) {
-        {
-            scope.launch {
-                viewModel.handleIntent(UsersIntent.LoadUser)
-            }
-        }
+        { scope.launch { viewModel.handleIntent(UsersIntent.LoadUser) } }
     }
-
-    // === UI layout starts here ===
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
         if (state.isLoading) {
             CircularProgressIndicator()
         } else {
-            // Name input field
+            // Input fields and button
             TextField(
                 value = state.name,
                 onValueChange = onNameChange,
@@ -85,7 +61,6 @@ fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Age input field
             TextField(
                 value = state.age,
                 onValueChange = onAgeChange,
@@ -94,16 +69,26 @@ fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Load User button
             Button(onClick = onLoadUser) {
                 Text("Load User")
             }
         }
 
-        // Show error message if any
         state.error?.let {
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = "Error: $it", color = MaterialTheme.colorScheme.error)
+        }
+
+        // Display list of users
+        if (state.users.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(24.dp))
+            Text("Created Users:", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            LazyColumn {
+                items(state.users) { user ->
+                    Text("- ${user.name}, age ${user.age}")
+                }
+            }
         }
     }
 }

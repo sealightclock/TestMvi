@@ -1,14 +1,19 @@
 package com.example.jonathan.testmvi.features.users.presentation.state
 
+import com.example.jonathan.testmvi.features.users.domain.entity.UserEntity
+
 /**
- * Represents the state of the user screen: User + State:
+ * Represents the state of the users screen: Input values + UI state + user list.
  */
 data class UsersState(
-    // User data:
+    // Input data (used for form fields)
     val name: String = "",
-    val age: String = "0", // TODO: For State, it is better to use String rather than Int
-    // to avoid NumberFormatException in TextField
-    // State data:
+    val age: String = "0", // String avoids crash from invalid input
+
+    // UI state
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+
+    // List of all created users
+    val users: List<UserEntity> = emptyList()
 )
