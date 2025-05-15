@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
  * For testing or previews, you can optionally pass in a custom ViewModel instance.
  */
 @Composable
-fun UserScreen(viewModel: UsersViewModel = viewModel()) {
+fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
     // Get the lifecycle owner of this Composable
     val lifecycleOwner = LocalLifecycleOwner.current
 
