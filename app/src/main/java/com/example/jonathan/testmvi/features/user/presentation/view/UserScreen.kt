@@ -8,17 +8,24 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.jonathan.testmvi.features.user.presentation.intent.UserIntent
 import com.example.jonathan.testmvi.features.user.presentation.state.UserState
 import com.example.jonathan.testmvi.features.user.presentation.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
+/**
+ * Composable function for displaying the User screen.
+ *
+ * By default, the UserViewModel is created internally using the viewModel() delegate.
+ * For testing or previews, you can optionally pass in a custom ViewModel instance.
+ */
 @Composable
-fun UserScreen(viewModel: UserViewModel) {
+fun UserScreen(viewModel: UserViewModel = viewModel()) {
     // Get the lifecycle owner of this Composable
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    // Create a lifecycle-aware version of the ViewModel's userState flow
+    // Convert the StateFlow into a Lifecycle-aware Flow
     val lifecycleAwareFlow = remember(viewModel, lifecycleOwner) {
         viewModel.userState.flowWithLifecycle(
             lifecycle = lifecycleOwner.lifecycle,
@@ -26,15 +33,14 @@ fun UserScreen(viewModel: UserViewModel) {
         )
     }
 
-    // Collect the flow into a Compose state variable
+    // Collect the state safely during composition (lifecycle-aware)
     val state by lifecycleAwareFlow.collectAsState(initial = UserState())
 
-    // Create a coroutine scope for dispatching intents
+    // Create a coroutine scope for dispatching user intents
     val scope = rememberCoroutineScope()
 
-    // === Extract intent dispatch logic into local lambdas ===
+    // === Extract intent dispatch logic into lambdas ===
 
-    // Lambda to update name (must return (String) -> Unit)
     val onNameChange: (String) -> Unit = remember(viewModel, scope) {
         { name ->
             scope.launch {
@@ -43,7 +49,6 @@ fun UserScreen(viewModel: UserViewModel) {
         }
     }
 
-    // Lambda to update age
     val onAgeChange: (String) -> Unit = remember(viewModel, scope) {
         { age ->
             scope.launch {
@@ -52,7 +57,6 @@ fun UserScreen(viewModel: UserViewModel) {
         }
     }
 
-    // Lambda to load user data
     val onLoadUser: () -> Unit = remember(viewModel, scope) {
         {
             scope.launch {
@@ -72,7 +76,7 @@ fun UserScreen(viewModel: UserViewModel) {
         if (state.isLoading) {
             CircularProgressIndicator()
         } else {
-            // Name input field (value: String, onValueChange: (String) -> Unit)
+            // Name input field
             TextField(
                 value = state.name,
                 onValueChange = onNameChange,
