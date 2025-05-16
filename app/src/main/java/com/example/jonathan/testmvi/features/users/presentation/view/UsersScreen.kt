@@ -43,51 +43,59 @@ fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
         { scope.launch { viewModel.handleIntent(UsersIntent.LoadUser) } }
     }
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.Top
     ) {
         if (state.isLoading) {
-            CircularProgressIndicator()
+            item {
+                CircularProgressIndicator()
+            }
         } else {
-            // Input fields and button
-            TextField(
-                value = state.name,
-                onValueChange = onNameChange,
-                label = { Text("Name") }
-            )
+            item {
+                TextField(
+                    value = state.name,
+                    onValueChange = onNameChange,
+                    label = { Text("Name") }
+                )
+            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            item { Spacer(modifier = Modifier.height(8.dp)) }
 
-            TextField(
-                value = state.age,
-                onValueChange = onAgeChange,
-                label = { Text("Age") }
-            )
+            item {
+                TextField(
+                    value = state.age,
+                    onValueChange = onAgeChange,
+                    label = { Text("Age") }
+                )
+            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            item { Spacer(modifier = Modifier.height(16.dp)) }
 
-            Button(onClick = onLoadUser) {
-                Text("Load User")
+            item {
+                Button(onClick = onLoadUser) {
+                    Text("Load User")
+                }
             }
         }
 
         state.error?.let {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Error: $it", color = MaterialTheme.colorScheme.error)
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = "Error: $it", color = MaterialTheme.colorScheme.error)
+            }
         }
 
         // Display list of users
         if (state.users.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(24.dp))
-            Text("Created Users:", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-            LazyColumn {
-                items(state.users) { user ->
-                    Text("- ${user.name}, age ${user.age}")
-                }
+            item { Spacer(modifier = Modifier.height(24.dp)) }
+            item { Text("Created Users:", style = MaterialTheme.typography.titleMedium) }
+            item { Spacer(modifier = Modifier.height(8.dp)) }
+
+            items(state.users) { user ->
+                Text("- ${user.name}, age ${user.age}")
             }
         }
     }
