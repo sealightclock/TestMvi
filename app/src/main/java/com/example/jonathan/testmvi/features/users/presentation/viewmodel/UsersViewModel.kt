@@ -29,19 +29,34 @@ class UsersViewModel : ViewModel() {
                     try {
                         delay(1000)
 
-                        val currentAge = _userState.value.age.toIntOrNull() ?: 0
-                        if (currentAge >= 5) throw Exception("Too many users loaded.")
+                        val currentState = _userState.value
+                        val name = currentState.name.trim()
+                        val ageStr = currentState.age.trim()
 
-                        val nextAge = currentAge + 1
-                        val nextName = BASE_USER_NAME + nextAge
+                        // Rule [1]: Name must not be empty
+                        if (name.isEmpty()) throw Exception("Name cannot be empty.")
 
-                        // Create new UserEntity and append to users list
-                        val newUser = UserEntity(name = nextName, age = nextAge.toString())
-                        val updatedList = _userState.value.users + newUser
+                        // Rule [2]: Age must be a valid number between 0 and 200
+                        val ageInt = ageStr.toIntOrNull()
+                        if (ageInt == null || ageInt !in 0..200) {
+                            throw Exception("Age must be an integer between 0 and 200.")
+                        }
 
-                        _userState.value = _userState.value.copy(
-                            name = nextName,
-                            age = nextAge.toString(),
+                        // Rule [3]: Combination must be unique
+                        if (currentState.users.any { it.name == name && it.age == ageStr }) {
+                            throw Exception("This user already exists.")
+                        }
+
+                        // Rule [4]: Max 5 users
+                        if (currentState.users.size >= 5) {
+                            throw Exception("Cannot add more than 5 users.")
+                        }
+
+                        // All validations passed — add user
+                        val newUser = UserEntity(name = name, age = ageStr)
+                        val updatedList = currentState.users + newUser
+
+                        _userState.value = currentState.copy(
                             users = updatedList,
                             isLoading = false,
                             error = null
@@ -63,9 +78,5 @@ class UsersViewModel : ViewModel() {
                 }
             }
         }
-    }
-
-    companion object {
-        private const val BASE_USER_NAME = "User Name"
     }
 }
