@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Displays a form for adding users and a list of created users.
- * Now uses a Snackbar to show errors without affecting layout.
+ * Uses Snackbar for error feedback without affecting layout.
  */
 @Composable
 fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
@@ -46,10 +46,11 @@ fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Show snackbar when there's a new error
+    // Show snackbar when there's a new error, then clear it
     LaunchedEffect(state.error) {
         state.error?.let { message ->
             snackbarHostState.showSnackbar(message)
+            viewModel.handleIntent(UsersIntent.ClearError)
         }
     }
 

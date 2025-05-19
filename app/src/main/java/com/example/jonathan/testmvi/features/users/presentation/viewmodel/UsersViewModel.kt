@@ -33,26 +33,18 @@ class UsersViewModel : ViewModel() {
                         val name = currentState.name.trim()
                         val ageStr = currentState.age.trim()
 
-                        // Rule [1]: Name must not be empty
                         if (name.isEmpty()) throw Exception("Name cannot be empty.")
-
-                        // Rule [2]: Age must be a valid number between 0 and 200
                         val ageInt = ageStr.toIntOrNull()
                         if (ageInt == null || ageInt !in 0..200) {
                             throw Exception("Age must be an integer between 0 and 200.")
                         }
-
-                        // Rule [3]: Combination must be unique
                         if (currentState.users.any { it.name == name && it.age == ageStr }) {
                             throw Exception("This user already exists.")
                         }
-
-                        // Rule [4]: Max 5 users
                         if (currentState.users.size >= 5) {
                             throw Exception("Cannot add more than 5 users.")
                         }
 
-                        // All validations passed — add user
                         val newUser = UserEntity(name = name, age = ageStr)
                         val updatedList = currentState.users + newUser
 
@@ -75,6 +67,10 @@ class UsersViewModel : ViewModel() {
 
                 is UsersIntent.UpdateAge -> {
                     _userState.value = _userState.value.copy(age = intent.age)
+                }
+
+                is UsersIntent.ClearError -> {
+                    _userState.value = _userState.value.copy(error = null)
                 }
             }
         }
