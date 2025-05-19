@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Displays a form for adding users and a list of created users.
+ * Now uses a Snackbar to show errors without affecting layout.
  */
 @Composable
 fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
@@ -43,59 +44,66 @@ fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
         { scope.launch { viewModel.handleIntent(UsersIntent.LoadUser) } }
     }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Top
-    ) {
-        if (state.isLoading) {
-            item {
-                CircularProgressIndicator()
-            }
-        } else {
-            item {
-                TextField(
-                    value = state.name,
-                    onValueChange = onNameChange,
-                    label = { Text("Name") }
-                )
-            }
+    val snackbarHostState = remember { SnackbarHostState() }
 
-            item { Spacer(modifier = Modifier.height(8.dp)) }
+    // Show snackbar when there's a new error
+    LaunchedEffect(state.error) {
+        state.error?.let { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
 
-            item {
-                TextField(
-                    value = state.age,
-                    onValueChange = onAgeChange,
-                    label = { Text("Age") }
-                )
-            }
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .padding(innerPadding),
+            verticalArrangement = Arrangement.Top
+        ) {
+            if (state.isLoading) {
+                item {
+                    CircularProgressIndicator()
+                }
+            } else {
+                item {
+                    TextField(
+                        value = state.name,
+                        onValueChange = onNameChange,
+                        label = { Text("Name") }
+                    )
+                }
 
-            item { Spacer(modifier = Modifier.height(16.dp)) }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
 
-            item {
-                Button(onClick = onLoadUser) {
-                    Text("Load User")
+                item {
+                    TextField(
+                        value = state.age,
+                        onValueChange = onAgeChange,
+                        label = { Text("Age") }
+                    )
+                }
+
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+
+                item {
+                    Button(onClick = onLoadUser) {
+                        Text("Load User")
+                    }
                 }
             }
-        }
 
-        state.error?.let {
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "Error: $it", color = MaterialTheme.colorScheme.error)
-            }
-        }
+            // Display list of users
+            if (state.users.isNotEmpty()) {
+                item { Spacer(modifier = Modifier.height(24.dp)) }
+                item { Text("Created Users:", style = MaterialTheme.typography.titleMedium) }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
 
-        // Display list of users
-        if (state.users.isNotEmpty()) {
-            item { Spacer(modifier = Modifier.height(24.dp)) }
-            item { Text("Created Users:", style = MaterialTheme.typography.titleMedium) }
-            item { Spacer(modifier = Modifier.height(8.dp)) }
-
-            items(state.users) { user ->
-                Text("- ${user.name}, age ${user.age}")
+                items(state.users) { user ->
+                    Text("- ${user.name}, age ${user.age}")
+                }
             }
         }
     }
