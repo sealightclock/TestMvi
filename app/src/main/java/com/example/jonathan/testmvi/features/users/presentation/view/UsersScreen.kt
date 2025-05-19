@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -18,7 +19,9 @@ import kotlinx.coroutines.launch
 
 /**
  * Displays a form for adding users and a list of created users.
- * Uses Snackbar for error feedback without affecting layout.
+ * - Uses Snackbar for error feedback without affecting layout.
+ * - Keeps layout stable when loading (no layout shift or scroll jump).
+ * - Disables inputs while loading.
  */
 @Composable
 fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
@@ -46,11 +49,13 @@ fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Show snackbar when there's a new error, then clear it
+    // Show snackbar when there's a new error, then clear it only after dismissal
     LaunchedEffect(state.error) {
         state.error?.let { message ->
-            snackbarHostState.showSnackbar(message)
-            viewModel.handleIntent(UsersIntent.ClearError)
+            val result = snackbarHostState.showSnackbar(message)
+            if (result == SnackbarResult.Dismissed || result == SnackbarResult.ActionPerformed) {
+                viewModel.handleIntent(UsersIntent.ClearError)
+            }
         }
     }
 
@@ -64,34 +69,43 @@ fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
                 .padding(innerPadding),
             verticalArrangement = Arrangement.Top
         ) {
-            if (state.isLoading) {
-                item {
-                    CircularProgressIndicator()
-                }
-            } else {
-                item {
-                    TextField(
-                        value = state.name,
-                        onValueChange = onNameChange,
-                        label = { Text("Name") }
-                    )
-                }
+            item {
+                TextField(
+                    value = state.name,
+                    onValueChange = onNameChange,
+                    label = { Text("Name") },
+                    enabled = !state.isLoading
+                )
+            }
 
-                item { Spacer(modifier = Modifier.height(8.dp)) }
+            item { Spacer(modifier = Modifier.height(8.dp)) }
 
-                item {
-                    TextField(
-                        value = state.age,
-                        onValueChange = onAgeChange,
-                        label = { Text("Age") }
-                    )
-                }
+            item {
+                TextField(
+                    value = state.age,
+                    onValueChange = onAgeChange,
+                    label = { Text("Age") },
+                    enabled = !state.isLoading
+                )
+            }
 
-                item { Spacer(modifier = Modifier.height(16.dp)) }
+            item { Spacer(modifier = Modifier.height(16.dp)) }
 
-                item {
-                    Button(onClick = onLoadUser) {
+            item {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Button(
+                        onClick = onLoadUser,
+                        enabled = !state.isLoading
+                    ) {
                         Text("Load User")
+                    }
+
+                    if (state.isLoading) {
+                        Spacer(modifier = Modifier.width(12.dp))
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp
+                        )
                     }
                 }
             }
