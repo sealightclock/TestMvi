@@ -66,10 +66,6 @@ class UsersViewModel : ViewModel() {
                 is UsersIntent.UpdateAge -> {
                     _usersState.value = _usersState.value.copy(age = intent.age)
                 }
-
-                is UsersIntent.ClearError -> {
-                    // No longer needed
-                }
             }
         }
     }
