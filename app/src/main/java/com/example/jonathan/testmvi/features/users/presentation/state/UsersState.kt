@@ -12,7 +12,6 @@ data class UsersState(
 
     // UI state
     val isLoading: Boolean = false,
-    val error: String? = null,
 
     // List of all created users
     val users: List<UserEntity> = emptyList()

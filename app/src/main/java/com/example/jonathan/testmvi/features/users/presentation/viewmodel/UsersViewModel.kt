@@ -6,9 +6,7 @@ import com.example.jonathan.testmvi.features.users.domain.entity.UserEntity
 import com.example.jonathan.testmvi.features.users.presentation.intent.UsersIntent
 import com.example.jonathan.testmvi.features.users.presentation.state.UsersState
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 /**
@@ -19,6 +17,9 @@ class UsersViewModel : ViewModel() {
 
     private val _usersState = MutableStateFlow(UsersState())
     val usersState: StateFlow<UsersState> = _usersState.asStateFlow()
+
+    private val _errorEvent = MutableSharedFlow<String>()
+    val errorEvent: SharedFlow<String> = _errorEvent
 
     fun handleIntent(intent: UsersIntent) {
         viewModelScope.launch {
@@ -50,14 +51,11 @@ class UsersViewModel : ViewModel() {
 
                         _usersState.value = currentState.copy(
                             users = updatedList,
-                            isLoading = false,
-                            error = null
+                            isLoading = false
                         )
                     } catch (e: Exception) {
-                        _usersState.value = _usersState.value.copy(
-                            isLoading = false,
-                            error = e.message
-                        )
+                        _usersState.value = _usersState.value.copy(isLoading = false)
+                        _errorEvent.emit(e.message ?: "Unknown error")
                     }
                 }
 
@@ -70,7 +68,7 @@ class UsersViewModel : ViewModel() {
                 }
 
                 is UsersIntent.ClearError -> {
-                    _usersState.value = _usersState.value.copy(error = null)
+                    // No longer needed
                 }
             }
         }

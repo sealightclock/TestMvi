@@ -34,6 +34,14 @@ fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
     }
     val state by lifecycleAwareFlow.collectAsState(initial = UsersState())
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // NEW: Show snackbar when error event is emitted
+    LaunchedEffect(Unit) {
+        viewModel.errorEvent.collect { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
 
     val onNameChange: (String) -> Unit = remember(viewModel, scope) {
         { name -> scope.launch { viewModel.handleIntent(UsersIntent.UpdateName(name)) } }
@@ -45,18 +53,6 @@ fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
 
     val onLoadUser: () -> Unit = remember(viewModel, scope) {
         { scope.launch { viewModel.handleIntent(UsersIntent.LoadUser) } }
-    }
-
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    // Show snackbar when there's a new error, then clear it only after dismissal
-    LaunchedEffect(state.error) {
-        state.error?.let { message ->
-            val result = snackbarHostState.showSnackbar(message)
-            if (result == SnackbarResult.Dismissed || result == SnackbarResult.ActionPerformed) {
-                viewModel.handleIntent(UsersIntent.ClearError)
-            }
-        }
     }
 
     Scaffold(
