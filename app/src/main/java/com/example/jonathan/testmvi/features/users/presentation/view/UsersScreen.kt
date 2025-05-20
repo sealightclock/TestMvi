@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleAwareFlow = remember(viewModel, lifecycleOwner) {
-        viewModel.userState.flowWithLifecycle(
+        viewModel.usersState.flowWithLifecycle(
             lifecycle = lifecycleOwner.lifecycle,
             minActiveState = Lifecycle.State.STARTED
         )

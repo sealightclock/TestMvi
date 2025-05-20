@@ -17,19 +17,19 @@ import kotlinx.coroutines.launch
  */
 class UsersViewModel : ViewModel() {
 
-    private val _userState = MutableStateFlow(UsersState())
-    val userState: StateFlow<UsersState> = _userState.asStateFlow()
+    private val _usersState = MutableStateFlow(UsersState())
+    val usersState: StateFlow<UsersState> = _usersState.asStateFlow()
 
     fun handleIntent(intent: UsersIntent) {
         viewModelScope.launch {
             when (intent) {
                 is UsersIntent.LoadUser -> {
-                    _userState.value = _userState.value.copy(isLoading = true)
+                    _usersState.value = _usersState.value.copy(isLoading = true)
 
                     try {
                         delay(1000)
 
-                        val currentState = _userState.value
+                        val currentState = _usersState.value
                         val name = currentState.name.trim()
                         val ageStr = currentState.age.trim()
 
@@ -48,13 +48,13 @@ class UsersViewModel : ViewModel() {
                         val newUser = UserEntity(name = name, age = ageStr)
                         val updatedList = currentState.users + newUser
 
-                        _userState.value = currentState.copy(
+                        _usersState.value = currentState.copy(
                             users = updatedList,
                             isLoading = false,
                             error = null
                         )
                     } catch (e: Exception) {
-                        _userState.value = _userState.value.copy(
+                        _usersState.value = _usersState.value.copy(
                             isLoading = false,
                             error = e.message
                         )
@@ -62,15 +62,15 @@ class UsersViewModel : ViewModel() {
                 }
 
                 is UsersIntent.UpdateName -> {
-                    _userState.value = _userState.value.copy(name = intent.name)
+                    _usersState.value = _usersState.value.copy(name = intent.name)
                 }
 
                 is UsersIntent.UpdateAge -> {
-                    _userState.value = _userState.value.copy(age = intent.age)
+                    _usersState.value = _usersState.value.copy(age = intent.age)
                 }
 
                 is UsersIntent.ClearError -> {
-                    _userState.value = _userState.value.copy(error = null)
+                    _usersState.value = _usersState.value.copy(error = null)
                 }
             }
         }
