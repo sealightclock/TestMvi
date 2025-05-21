@@ -3,17 +3,22 @@ package com.example.jonathan.testmvi.features.users.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.jonathan.testmvi.features.users.domain.entity.UserEntity
+import com.example.jonathan.testmvi.features.users.domain.usecase.GetUsersFromLocal
+import com.example.jonathan.testmvi.features.users.domain.usecase.StoreUsersToLocal
 import com.example.jonathan.testmvi.features.users.presentation.intent.UsersIntent
 import com.example.jonathan.testmvi.features.users.presentation.state.UsersState
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 /**
  * ViewModel for managing the users screen.
  * Handles user intents and updates UI state accordingly.
+ * Persists data using Preferences DataStore via UseCases.
  */
-class UsersViewModel : ViewModel() {
+class UsersViewModel(
+    private val getUsersFromLocal: GetUsersFromLocal,
+    private val storeUsersToLocal: StoreUsersToLocal
+) : ViewModel() {
 
     private val _usersState = MutableStateFlow(UsersState())
     val usersState: StateFlow<UsersState> = _usersState.asStateFlow()
@@ -21,51 +26,63 @@ class UsersViewModel : ViewModel() {
     private val _errorEvent = MutableSharedFlow<String>()
     val errorEvent: SharedFlow<String> = _errorEvent
 
+    init {
+        handleIntent(UsersIntent.LoadUsers)
+    }
+
     fun handleIntent(intent: UsersIntent) {
-        viewModelScope.launch {
-            when (intent) {
-                is UsersIntent.LoadUser -> {
-                    _usersState.value = _usersState.value.copy(isLoading = true)
+        when (intent) {
+            is UsersIntent.UpdateName -> {
+                _usersState.update { it.copy(name = intent.newName) }
+            }
 
-                    try {
-                        delay(1000)
+            is UsersIntent.UpdateAge -> {
+                _usersState.update { it.copy(age = intent.newAge) }
+            }
 
-                        val currentState = _usersState.value
-                        val name = currentState.name.trim()
-                        val ageStr = currentState.age.trim()
+            is UsersIntent.AddUser -> {
+                viewModelScope.launch {
+                    val currentState = _usersState.value
+                    val name = currentState.name.trim()
+                    val ageStr = currentState.age.trim()
 
-                        if (name.isEmpty()) throw Exception("Name cannot be empty.")
-                        val ageInt = ageStr.toIntOrNull()
-                        if (ageInt == null || ageInt !in 0..200) {
-                            throw Exception("Age must be an integer between 0 and 200.")
+                    // Validate inputs
+                    val ageInt = ageStr.toIntOrNull()
+                    when {
+                        name.isEmpty() -> _errorEvent.emit("Name cannot be empty.")
+                        ageInt == null || ageInt !in 0..200 -> _errorEvent.emit("Age must be an integer between 0 and 200.")
+                        currentState.users.any { it.name == name && it.age == ageStr } ->
+                            _errorEvent.emit("This user already exists.")
+                        currentState.users.size >= 5 ->
+                            _errorEvent.emit("Cannot add more than 5 users.")
+                        else -> {
+                            val newUser = UserEntity(name = name, age = ageStr)
+                            val updatedList = currentState.users + newUser
+
+                            // Update state
+                            _usersState.value = currentState.copy(
+                                name = "",
+                                age = "0",
+                                users = updatedList
+                            )
+
+                            // Persist updated list
+                            storeUsersToLocal(updatedList)
                         }
-                        if (currentState.users.any { it.name == name && it.age == ageStr }) {
-                            throw Exception("This user already exists.")
-                        }
-                        if (currentState.users.size >= 5) {
-                            throw Exception("Cannot add more than 5 users.")
-                        }
-
-                        val newUser = UserEntity(name = name, age = ageStr)
-                        val updatedList = currentState.users + newUser
-
-                        _usersState.value = currentState.copy(
-                            users = updatedList,
-                            isLoading = false
-                        )
-                    } catch (e: Exception) {
-                        _usersState.value = _usersState.value.copy(isLoading = false)
-                        _errorEvent.emit(e.message ?: "Unknown error")
                     }
                 }
+            }
 
-                is UsersIntent.UpdateName -> {
-                    _usersState.value = _usersState.value.copy(name = intent.name)
+            is UsersIntent.LoadUsers -> {
+                viewModelScope.launch {
+                    _usersState.update { it.copy(isLoading = true) }
+                    val loadedUsers = getUsersFromLocal()
+                    _usersState.update { it.copy(isLoading = false, users = loadedUsers) }
                 }
+            }
 
-                is UsersIntent.UpdateAge -> {
-                    _usersState.value = _usersState.value.copy(age = intent.age)
-                }
+            is UsersIntent.ClearError -> {
+                // No-op for now, errorEvent is auto-cleared after emission
             }
         }
     }

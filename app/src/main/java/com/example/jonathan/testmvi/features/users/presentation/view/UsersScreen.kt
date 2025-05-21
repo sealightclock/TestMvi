@@ -1,21 +1,41 @@
 package com.example.jonathan.testmvi.features.users.presentation.view
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.jonathan.testmvi.features.users.presentation.factory.UsersViewModelFactory
 import com.example.jonathan.testmvi.features.users.presentation.intent.UsersIntent
 import com.example.jonathan.testmvi.features.users.presentation.state.UsersState
 import com.example.jonathan.testmvi.features.users.presentation.viewmodel.UsersViewModel
-import kotlinx.coroutines.launch
 
 /**
  * Displays a form for adding users and a list of created users.
@@ -24,7 +44,13 @@ import kotlinx.coroutines.launch
  * - Disables inputs while loading.
  */
 @Composable
-fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
+fun UsersScreen() {
+    // Provide ViewModel using custom factory
+    val context = LocalContext.current.applicationContext
+    val factory = remember { UsersViewModelFactory(context) }
+    val viewModel: UsersViewModel = viewModel(factory = factory)
+
+    // Lifecycle-aware state collection
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleAwareFlow = remember(viewModel, lifecycleOwner) {
         viewModel.usersState.flowWithLifecycle(
@@ -33,26 +59,28 @@ fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
         )
     }
     val state by lifecycleAwareFlow.collectAsState(initial = UsersState())
+
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // NEW: Show snackbar when error event is emitted
+    // Show Snackbar on error event
     LaunchedEffect(Unit) {
         viewModel.errorEvent.collect { message ->
             snackbarHostState.showSnackbar(message)
         }
     }
 
-    val onNameChange: (String) -> Unit = remember(viewModel, scope) {
-        { name -> scope.launch { viewModel.handleIntent(UsersIntent.UpdateName(name)) } }
+    // Intent dispatchers
+    val onNameChange: (String) -> Unit = remember(viewModel) {
+        { viewModel.handleIntent(UsersIntent.UpdateName(it)) }
     }
 
-    val onAgeChange: (String) -> Unit = remember(viewModel, scope) {
-        { age -> scope.launch { viewModel.handleIntent(UsersIntent.UpdateAge(age)) } }
+    val onAgeChange: (String) -> Unit = remember(viewModel) {
+        { viewModel.handleIntent(UsersIntent.UpdateAge(it)) }
     }
 
-    val onLoadUser: () -> Unit = remember(viewModel, scope) {
-        { scope.launch { viewModel.handleIntent(UsersIntent.LoadUser) } }
+    val onAddUser: () -> Unit = remember(viewModel) {
+        { viewModel.handleIntent(UsersIntent.AddUser) }
     }
 
     Scaffold(
@@ -90,10 +118,10 @@ fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
             item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Button(
-                        onClick = onLoadUser,
+                        onClick = onAddUser,
                         enabled = !state.isLoading
                     ) {
-                        Text("Load User")
+                        Text("Add User")
                     }
 
                     if (state.isLoading) {
@@ -106,7 +134,6 @@ fun UsersScreen(viewModel: UsersViewModel = viewModel()) {
                 }
             }
 
-            // Display list of users
             if (state.users.isNotEmpty()) {
                 item { Spacer(modifier = Modifier.height(24.dp)) }
                 item { Text("Created Users:", style = MaterialTheme.typography.titleMedium) }
