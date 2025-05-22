@@ -25,7 +25,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -38,6 +37,7 @@ import com.example.jonathan.testmvi.features.users.presentation.factory.UsersVie
 import com.example.jonathan.testmvi.features.users.presentation.intent.UsersIntent
 import com.example.jonathan.testmvi.features.users.presentation.state.UsersState
 import com.example.jonathan.testmvi.features.users.presentation.viewmodel.UsersViewModel
+import kotlinx.coroutines.flow.collectLatest
 
 /**
  * Displays a form for adding users and a list of created users.
@@ -62,10 +62,10 @@ fun UsersScreen() {
     val state by lifecycleAwareFlow.collectAsState(initial = UsersState())
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        viewModel.errorEvent.collect { message ->
+        viewModel.errorEvent.collectLatest { message ->
+            snackbarHostState.currentSnackbarData?.dismiss() // optional
             snackbarHostState.showSnackbar(message)
         }
     }
