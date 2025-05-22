@@ -1,10 +1,12 @@
 package com.example.jonathan.testmvi.features.users.presentation.view
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -42,15 +44,14 @@ import com.example.jonathan.testmvi.features.users.presentation.viewmodel.UsersV
  * - Uses Snackbar for error feedback without affecting layout.
  * - Keeps layout stable when loading (no layout shift or scroll jump).
  * - Disables inputs while loading.
+ * - Ensures Snackbar stays visible above soft keyboard.
  */
 @Composable
 fun UsersScreen() {
-    // Provide ViewModel using custom factory
     val context = LocalContext.current.applicationContext
     val factory = remember { UsersViewModelFactory(context) }
     val viewModel: UsersViewModel = viewModel(factory = factory)
 
-    // Lifecycle-aware state collection
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleAwareFlow = remember(viewModel, lifecycleOwner) {
         viewModel.usersState.flowWithLifecycle(
@@ -60,17 +61,15 @@ fun UsersScreen() {
     }
     val state by lifecycleAwareFlow.collectAsState(initial = UsersState())
 
-    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-    // Show Snackbar on error event
     LaunchedEffect(Unit) {
         viewModel.errorEvent.collect { message ->
             snackbarHostState.showSnackbar(message)
         }
     }
 
-    // Intent dispatchers
     val onNameChange: (String) -> Unit = remember(viewModel) {
         { viewModel.handleIntent(UsersIntent.UpdateName(it)) }
     }
@@ -83,66 +82,82 @@ fun UsersScreen() {
         { viewModel.handleIntent(UsersIntent.AddUser) }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { innerPadding ->
-        LazyColumn(
+    Scaffold { innerPadding ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
-                .padding(innerPadding),
-            verticalArrangement = Arrangement.Top
+                .padding(innerPadding)
+                .imePadding() // ✅ Push content and Snackbar above soft keyboard
         ) {
-            item {
-                TextField(
-                    value = state.name,
-                    onValueChange = onNameChange,
-                    label = { Text("Name") },
-                    enabled = !state.isLoading
-                )
-            }
-
-            item { Spacer(modifier = Modifier.height(8.dp)) }
-
-            item {
-                TextField(
-                    value = state.age,
-                    onValueChange = onAgeChange,
-                    label = { Text("Age") },
-                    enabled = !state.isLoading
-                )
-            }
-
-            item { Spacer(modifier = Modifier.height(16.dp)) }
-
-            item {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Button(
-                        onClick = onAddUser,
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Top
+            ) {
+                item {
+                    TextField(
+                        value = state.name,
+                        onValueChange = onNameChange,
+                        label = { Text("Name") },
                         enabled = !state.isLoading
-                    ) {
-                        Text("Add User")
-                    }
-
-                    if (state.isLoading) {
-                        Spacer(modifier = Modifier.width(12.dp))
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.dp
-                        )
-                    }
+                    )
                 }
-            }
 
-            if (state.users.isNotEmpty()) {
-                item { Spacer(modifier = Modifier.height(24.dp)) }
-                item { Text("Created Users:", style = MaterialTheme.typography.titleMedium) }
                 item { Spacer(modifier = Modifier.height(8.dp)) }
 
-                items(state.users) { user ->
-                    Text("- ${user.name}, age ${user.age}")
+                item {
+                    TextField(
+                        value = state.age,
+                        onValueChange = onAgeChange,
+                        label = { Text("Age") },
+                        enabled = !state.isLoading
+                    )
+                }
+
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+
+                item {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Button(
+                            onClick = onAddUser,
+                            enabled = !state.isLoading
+                        ) {
+                            Text("Add User")
+                        }
+
+                        if (state.isLoading) {
+                            Spacer(modifier = Modifier.width(12.dp))
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        }
+                    }
+                }
+
+                if (state.users.isNotEmpty()) {
+                    item { Spacer(modifier = Modifier.height(24.dp)) }
+                    item {
+                        Text(
+                            "Created Users:",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                    item { Spacer(modifier = Modifier.height(8.dp)) }
+
+                    items(state.users) { user ->
+                        Text("- ${user.name}, age ${user.age}")
+                    }
                 }
             }
+
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp) // No imePadding here
+            )
         }
     }
 }
