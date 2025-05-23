@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.*
+import com.example.jonathan.testmvi.features.location.presentation.view.LocationScreen
 import com.example.jonathan.testmvi.features.users.presentation.view.UsersScreen
 import com.example.jonathan.testmvi.features.settings.presentation.view.SettingsScreen
 import com.example.jonathan.testmvi.navigation.DrawerDestination
@@ -64,6 +65,7 @@ fun MainScreen() {
             ) {
                 composable(DrawerDestination.Users.route) { UsersScreen() }
                 composable(DrawerDestination.Settings.route) { SettingsScreen() }
+                composable(DrawerDestination.Location.route) { LocationScreen() }
             }
         }
     }
