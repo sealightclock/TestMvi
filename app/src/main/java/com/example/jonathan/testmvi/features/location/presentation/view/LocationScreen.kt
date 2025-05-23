@@ -1,9 +1,15 @@
 package com.example.jonathan.testmvi.features.location.presentation.view
 
-import android.Manifest
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -13,15 +19,11 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.jonathan.testmvi.features.location.data.repository.LocationRepositoryImpl
 import com.example.jonathan.testmvi.features.location.domain.usecase.GetCurrentLocationUseCase
 import com.example.jonathan.testmvi.features.location.presentation.viewmodel.LocationViewModel
-import com.example.jonathan.testmvi.shared.permission.PermissionGate
+import com.example.jonathan.testmvi.shared.permission.LocationPermissionGate
 
 @Composable
 fun LocationScreen() {
-    PermissionGate(
-        permission = Manifest.permission.ACCESS_FINE_LOCATION,
-        rationaleMessage = "Location permission is needed to display your current location and speed.",
-        permanentlyDeniedMessage = "Location permission is permanently denied. Please enable it in App Settings."
-    ) {
+    LocationPermissionGate {
         LocationScreenContent()
     }
 }
