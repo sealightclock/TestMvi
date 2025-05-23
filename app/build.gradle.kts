@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.jonathan.testmvi"
-        minSdk = 24
+        minSdk = 29 // Android 10 is required for Location
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"

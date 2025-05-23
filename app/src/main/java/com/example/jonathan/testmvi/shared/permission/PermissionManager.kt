@@ -12,12 +12,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
@@ -32,6 +34,7 @@ fun PermissionGate(
 ) {
     val context = LocalContext.current
     val permissionState = rememberPermissionState(permission)
+    var hasRequested by rememberSaveable { mutableStateOf(false) }
 
     when {
         permissionState.status.isGranted -> {
@@ -40,19 +43,21 @@ fun PermissionGate(
 
         permissionState.status.shouldShowRationale -> {
             RationaleUI(message = rationaleMessage) {
+                hasRequested = true
                 permissionState.launchPermissionRequest()
             }
         }
 
-        permissionState.status is PermissionStatus.Denied -> {
-            if (permissionState.status.isPermanentlyDenied()) {
-                PermanentlyDeniedUI(message = permanentlyDeniedMessage) {
-                    openAppSettings(context)
-                }
-            } else {
-                RationaleUI(message = rationaleMessage) {
-                    permissionState.launchPermissionRequest()
-                }
+        hasRequested -> {
+            PermanentlyDeniedUI(message = permanentlyDeniedMessage) {
+                openAppSettings(context)
+            }
+        }
+
+        else -> {
+            RationaleUI(message = rationaleMessage) {
+                hasRequested = true
+                permissionState.launchPermissionRequest()
             }
         }
     }
@@ -88,13 +93,6 @@ private fun openAppSettings(context: Context) {
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
-private fun PermissionStatus.isPermanentlyDenied(): Boolean {
-    return this is PermissionStatus.Denied && !this.shouldShowRationale
-}
-
-// Special handling for location permissions:
-
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun LocationPermissionGate(
     onPermissionGranted: @Composable () -> Unit
@@ -103,57 +101,60 @@ fun LocationPermissionGate(
     val fineLocationState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val backgroundLocationState = rememberPermissionState(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
 
-    val isAndroidQOrLater = remember {
-        android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q
-    }
+    var hasRequestedFine by rememberSaveable { mutableStateOf(false) }
+    var hasRequestedBackground by rememberSaveable { mutableStateOf(false) }
 
     when {
-        fineLocationState.status.isGranted && (!isAndroidQOrLater || backgroundLocationState.status.isGranted) -> {
-            // ✅ All necessary permissions granted
+        fineLocationState.status.isGranted && backgroundLocationState.status.isGranted -> {
             onPermissionGranted()
         }
 
         !fineLocationState.status.isGranted -> {
-            // Step 1: Request foreground permission
-            PermissionPrompt(
-                message = "Location permission is required to show your current location and speed.",
-                onRequest = { fineLocationState.launchPermissionRequest() },
-                permanentlyDenied = fineLocationState.status.isPermanentlyDenied(),
-                onOpenSettings = { openAppSettings(context) }
-            )
+            when {
+                fineLocationState.status.shouldShowRationale -> {
+                    RationaleUI("Location permission is required to show your current location and speed.") {
+                        hasRequestedFine = true
+                        fineLocationState.launchPermissionRequest()
+                    }
+                }
+
+                hasRequestedFine -> {
+                    PermanentlyDeniedUI("Location permission is permanently denied. Please enable it in App Settings.") {
+                        openAppSettings(context)
+                    }
+                }
+
+                else -> {
+                    RationaleUI("This feature requires location access.") {
+                        hasRequestedFine = true
+                        fineLocationState.launchPermissionRequest()
+                    }
+                }
+            }
         }
 
-        isAndroidQOrLater && !backgroundLocationState.status.isGranted -> {
-            // Step 2: Request background permission
-            PermissionPrompt(
-                message = "Background location is needed to continue tracking when the app is closed.",
-                onRequest = { backgroundLocationState.launchPermissionRequest() },
-                permanentlyDenied = backgroundLocationState.status.isPermanentlyDenied(),
-                onOpenSettings = { openAppSettings(context) }
-            )
+        !backgroundLocationState.status.isGranted -> {
+            when {
+                backgroundLocationState.status.shouldShowRationale -> {
+                    RationaleUI("Background location is needed to continue tracking when the app is closed.") {
+                        hasRequestedBackground = true
+                        backgroundLocationState.launchPermissionRequest()
+                    }
+                }
+
+                hasRequestedBackground -> {
+                    PermanentlyDeniedUI("Background location permission is permanently denied. Enable it in App Settings.") {
+                        openAppSettings(context)
+                    }
+                }
+
+                else -> {
+                    RationaleUI("To track location in background, grant background access.") {
+                        hasRequestedBackground = true
+                        backgroundLocationState.launchPermissionRequest()
+                    }
+                }
+            }
         }
     }
 }
-
-@Composable
-private fun PermissionPrompt(
-    message: String,
-    onRequest: () -> Unit,
-    permanentlyDenied: Boolean,
-    onOpenSettings: () -> Unit
-) {
-    Column(Modifier.padding(16.dp)) {
-        Text(message)
-        Spacer(modifier = Modifier.height(8.dp))
-        if (permanentlyDenied) {
-            Button(onClick = onOpenSettings) {
-                Text("Open App Settings")
-            }
-        } else {
-            Button(onClick = onRequest) {
-                Text("Grant Permission")
-            }
-        }
-    }
-}
-

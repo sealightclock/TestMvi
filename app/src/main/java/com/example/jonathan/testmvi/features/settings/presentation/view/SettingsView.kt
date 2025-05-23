@@ -16,8 +16,8 @@ fun SettingsScreen() {
     Scaffold(
         topBar = {
             // Optional: You can remove this TopAppBar if using the one in MainScreen
-            TopAppBar(
-                title = { Text("Settings") }
+            CenterAlignedTopAppBar(
+                title = { Text("Settings") },
             )
         }
     ) { innerPadding ->
