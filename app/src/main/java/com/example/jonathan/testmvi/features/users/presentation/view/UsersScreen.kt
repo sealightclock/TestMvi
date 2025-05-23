@@ -1,30 +1,10 @@
 package com.example.jonathan.testmvi.features.users.presentation.view
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -37,6 +17,7 @@ import com.example.jonathan.testmvi.features.users.presentation.factory.UsersVie
 import com.example.jonathan.testmvi.features.users.presentation.intent.UsersIntent
 import com.example.jonathan.testmvi.features.users.presentation.state.UsersState
 import com.example.jonathan.testmvi.features.users.presentation.viewmodel.UsersViewModel
+import com.example.jonathan.testmvi.shared.ui.CommonTopBar
 import kotlinx.coroutines.flow.collectLatest
 
 /**
@@ -46,6 +27,7 @@ import kotlinx.coroutines.flow.collectLatest
  * - Disables inputs while loading.
  * - Ensures Snackbar stays visible above soft keyboard.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UsersScreen() {
     val context = LocalContext.current.applicationContext
@@ -65,7 +47,7 @@ fun UsersScreen() {
 
     LaunchedEffect(Unit) {
         viewModel.errorEvent.collectLatest { message ->
-            snackbarHostState.currentSnackbarData?.dismiss() // optional
+            snackbarHostState.currentSnackbarData?.dismiss()
             snackbarHostState.showSnackbar(message)
         }
     }
@@ -82,12 +64,14 @@ fun UsersScreen() {
         { viewModel.handleIntent(UsersIntent.AddUser) }
     }
 
-    Scaffold { innerPadding ->
+    Scaffold(
+        topBar = { CommonTopBar(title = "Users") }
+    ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .imePadding() // ✅ Push content and Snackbar above soft keyboard
+                .imePadding()
         ) {
             LazyColumn(
                 modifier = Modifier
@@ -156,7 +140,7 @@ fun UsersScreen() {
                 hostState = snackbarHostState,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 16.dp) // No imePadding here
+                    .padding(bottom = 16.dp)
             )
         }
     }

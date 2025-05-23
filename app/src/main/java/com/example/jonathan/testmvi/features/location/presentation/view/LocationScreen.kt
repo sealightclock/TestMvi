@@ -1,6 +1,5 @@
 package com.example.jonathan.testmvi.features.location.presentation.view
 
-import android.Manifest
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,13 +15,14 @@ import com.example.jonathan.testmvi.features.location.domain.usecase.GetCurrentL
 import com.example.jonathan.testmvi.features.location.presentation.viewmodel.LocationViewModel
 import com.example.jonathan.testmvi.shared.permission.LocationPermissionGate
 import com.example.jonathan.testmvi.shared.preferences.PermissionPreferences
+import com.example.jonathan.testmvi.shared.ui.CommonTopBar
 import kotlinx.coroutines.flow.first
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationScreen() {
     val context = LocalContext.current
 
-    // Preload DataStore values to avoid race conditions
     val hasRequestedFineLocation by produceState<Boolean?>(initialValue = null, context) {
         value = PermissionPreferences.hasRequestedFineLocation(context).first()
     }
@@ -30,14 +30,22 @@ fun LocationScreen() {
         value = PermissionPreferences.hasRequestedBackgroundLocation(context).first()
     }
 
-    if (hasRequestedFineLocation != null && hasRequestedBackgroundLocation != null) {
-        LocationPermissionGate {
-            LocationScreenContent()
-        }
-    } else {
-        // Show a progress indicator to prevent UI flicker
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+    Scaffold(
+        topBar = { CommonTopBar(title = "Location") }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentAlignment = Alignment.Center
+        ) {
+            if (hasRequestedFineLocation != null && hasRequestedBackgroundLocation != null) {
+                LocationPermissionGate {
+                    LocationScreenContent()
+                }
+            } else {
+                CircularProgressIndicator()
+            }
         }
     }
 }

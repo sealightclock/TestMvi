@@ -5,21 +5,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.jonathan.testmvi.shared.ui.CommonTopBar
 
 /**
  * Basic Settings screen used in DrawerNavigation.
  * This is a placeholder — you can expand it with real settings later.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen() {
     Scaffold(
-        topBar = {
-            // Optional: You can remove this TopAppBar if using the one in MainScreen
-            CenterAlignedTopAppBar(
-                title = { Text("Settings") },
-            )
-        }
+        topBar = { CommonTopBar(title = "Settings") }
     ) { innerPadding ->
         Column(
             modifier = Modifier
