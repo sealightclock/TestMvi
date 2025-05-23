@@ -1,17 +1,9 @@
 package com.example.jonathan.testmvi.features.location.presentation.view
 
 import android.Manifest
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -21,43 +13,16 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.jonathan.testmvi.features.location.data.repository.LocationRepositoryImpl
 import com.example.jonathan.testmvi.features.location.domain.usecase.GetCurrentLocationUseCase
 import com.example.jonathan.testmvi.features.location.presentation.viewmodel.LocationViewModel
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
-import com.google.accompanist.permissions.shouldShowRationale
+import com.example.jonathan.testmvi.shared.permission.PermissionGate
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun LocationScreen() {
-    val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
-
-    when {
-        locationPermissionState.status.isGranted -> {
-            // Permission granted — show actual location screen
-            LocationScreenContent()
-        }
-
-        locationPermissionState.status.shouldShowRationale -> {
-            // Show rationale before requesting again
-            Column(Modifier.padding(16.dp)) {
-                Text("Location permission is needed to display your current location and speed.")
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(onClick = { locationPermissionState.launchPermissionRequest() }) {
-                    Text("Grant Permission")
-                }
-            }
-        }
-
-        else -> {
-            // First time or permanently denied — ask directly
-            Column(Modifier.padding(16.dp)) {
-                Text("This feature requires location access.")
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(onClick = { locationPermissionState.launchPermissionRequest() }) {
-                    Text("Request Permission")
-                }
-            }
-        }
+    PermissionGate(
+        permission = Manifest.permission.ACCESS_FINE_LOCATION,
+        rationaleMessage = "Location permission is needed to display your current location and speed.",
+        permanentlyDeniedMessage = "Location permission is permanently denied. Please enable it in App Settings."
+    ) {
+        LocationScreenContent()
     }
 }
 
