@@ -20,6 +20,8 @@ material3 = "1.3.2"
 play-services-location = "21.3.0"
 kotlinx-coroutines-play-services = "1.7.3"
 
+accompanist-permissions = "0.35.0-alpha"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -45,6 +47,8 @@ androidx-material3 = { module = "androidx.compose.material3:material3", version.
 
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "play-services-location" }
 kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinx-coroutines-play-services" }
+
+accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist-permissions" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
