@@ -1,15 +1,10 @@
 package com.example.jonathan.testmvi.features.location.presentation.view
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import android.Manifest
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -20,11 +15,30 @@ import com.example.jonathan.testmvi.features.location.data.repository.LocationRe
 import com.example.jonathan.testmvi.features.location.domain.usecase.GetCurrentLocationUseCase
 import com.example.jonathan.testmvi.features.location.presentation.viewmodel.LocationViewModel
 import com.example.jonathan.testmvi.shared.permission.LocationPermissionGate
+import com.example.jonathan.testmvi.shared.preferences.PermissionPreferences
+import kotlinx.coroutines.flow.first
 
 @Composable
 fun LocationScreen() {
-    LocationPermissionGate {
-        LocationScreenContent()
+    val context = LocalContext.current
+
+    // Preload DataStore values to avoid race conditions
+    val hasRequestedFineLocation by produceState<Boolean?>(initialValue = null, context) {
+        value = PermissionPreferences.hasRequestedFineLocation(context).first()
+    }
+    val hasRequestedBackgroundLocation by produceState<Boolean?>(initialValue = null, context) {
+        value = PermissionPreferences.hasRequestedBackgroundLocation(context).first()
+    }
+
+    if (hasRequestedFineLocation != null && hasRequestedBackgroundLocation != null) {
+        LocationPermissionGate {
+            LocationScreenContent()
+        }
+    } else {
+        // Show a progress indicator to prevent UI flicker
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
     }
 }
 
