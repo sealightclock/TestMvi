@@ -1,19 +1,18 @@
 package com.example.jonathan.testmvi.features.users.data.datasource.local
 
-import com.example.jonathan.testmvi.features.users.data.dto.toDto
-import com.example.jonathan.testmvi.features.users.data.dto.toEntity
-import com.example.jonathan.testmvi.features.users.domain.entity.UserEntity
+import com.example.jonathan.testmvi.features.users.data.dto.UserDto
 
 /**
- * Converts between domain and data models and delegates to UsersDataStoreApi.
+ * Handles only data-layer models (DTOs) and delegates persistence to UsersDataStoreApi.
+ * Domain-layer entities should not be visible here.
  */
 class UsersLocalDataSource(private val dataStoreApi: UsersDataStoreApi) {
 
-    suspend fun getUsers(): List<UserEntity> {
-        return dataStoreApi.loadUsers().map { it.toEntity() }
+    suspend fun getUsers(): List<UserDto> {
+        return dataStoreApi.loadUsers()
     }
 
-    suspend fun storeUsers(users: List<UserEntity>) {
-        dataStoreApi.saveUsers(users.map { it.toDto() })
+    suspend fun storeUsers(users: List<UserDto>) {
+        dataStoreApi.saveUsers(users)
     }
 }
