@@ -1,5 +1,6 @@
 package com.example.jonathan.testmvi
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
@@ -23,15 +24,25 @@ fun MainScreen() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    var currentScreen: DrawerDestination by remember {
-        mutableStateOf(DrawerDestination.Users)
+    // Use backstack instead of a single screen
+    val screenBackStack = remember {
+        mutableStateListOf<DrawerDestination>().apply {
+            add(DrawerDestination.Users) // Initial screen
+        }
     }
+
+    val currentScreen = screenBackStack.last()
 
     val drawerItems = listOf(
         DrawerDestination.Users,
         DrawerDestination.Settings,
         DrawerDestination.Location
     )
+
+    // Handle system back button
+    BackHandler(enabled = screenBackStack.size > 1) {
+        screenBackStack.removeAt(screenBackStack.lastIndex)
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -53,8 +64,10 @@ fun MainScreen() {
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                delay(250) // Let drawer finish animation before switching
-                                currentScreen = destination
+                                delay(250) // Let drawer close fully
+                                if (screenBackStack.lastOrNull() != destination) {
+                                    screenBackStack.add(destination)
+                                }
                             }
                         }
                     )
