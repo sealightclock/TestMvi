@@ -13,7 +13,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.jonathan.testmvi.features.users.presentation.factory.UsersViewModelFactory
+import com.example.jonathan.testmvi.features.users.presentation.viewmodel.UsersViewModelFactory
 import com.example.jonathan.testmvi.features.users.presentation.intent.UsersIntent
 import com.example.jonathan.testmvi.features.users.presentation.state.UsersState
 import com.example.jonathan.testmvi.features.users.presentation.viewmodel.UsersViewModel

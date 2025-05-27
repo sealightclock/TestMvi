@@ -1,13 +1,14 @@
-package com.example.jonathan.testmvi.features.location.data.repository
+package com.example.jonathan.testmvi.features.location.data.datasource.platform
 
 import android.annotation.SuppressLint
 import android.content.Context
+import com.example.jonathan.testmvi.features.location.data.repository.LocationRepository
 import com.example.jonathan.testmvi.features.location.domain.entity.LocationEntity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.tasks.await
 
-class LocationRepositoryImpl(context: Context) : LocationRepository {
+class LocationDataSource(context: Context) : LocationRepository {
     private val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
 

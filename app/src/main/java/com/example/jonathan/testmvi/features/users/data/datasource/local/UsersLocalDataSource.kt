@@ -1,4 +1,4 @@
-package com.example.jonathan.testmvi.features.users.data.datasource
+package com.example.jonathan.testmvi.features.users.data.datasource.local
 
 import com.example.jonathan.testmvi.features.users.data.dto.toDto
 import com.example.jonathan.testmvi.features.users.data.dto.toEntity

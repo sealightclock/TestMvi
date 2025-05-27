@@ -1,4 +1,4 @@
-package com.example.jonathan.testmvi.navigation
+package com.example.jonathan.testmvi.shared.navigation
 
 sealed class DrawerDestination(val route: String, val label: String) {
     object Users : DrawerDestination("users", "Users")

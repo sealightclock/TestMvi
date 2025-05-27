@@ -1,6 +1,6 @@
 package com.example.jonathan.testmvi.features.users.data.repository
 
-import com.example.jonathan.testmvi.features.users.data.datasource.UsersLocalDataSource
+import com.example.jonathan.testmvi.features.users.data.datasource.local.UsersLocalDataSource
 import com.example.jonathan.testmvi.features.users.domain.entity.UserEntity
 
 /**

@@ -37,8 +37,8 @@ import androidx.compose.ui.unit.dp
 import com.example.jonathan.testmvi.features.location.presentation.view.LocationScreen
 import com.example.jonathan.testmvi.features.settings.presentation.view.SettingsScreen
 import com.example.jonathan.testmvi.features.users.presentation.view.UsersScreen
-import com.example.jonathan.testmvi.navigation.DrawerDestination
-import com.example.jonathan.testmvi.shared.preferences.ScreenPreferencesDataStore
+import com.example.jonathan.testmvi.shared.navigation.DrawerDestination
+import com.example.jonathan.testmvi.shared.preferences.ScreenDataStore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -53,7 +53,7 @@ fun MainScreen() {
 
     // Load last screen from DataStore (nullable at first)
     val lastScreenState = produceState<DrawerDestination?>(initialValue = null, context) {
-        ScreenPreferencesDataStore.lastScreenFlow(context)
+        ScreenDataStore.lastScreenFlow(context)
             .collect { savedRoute ->
                 value = DrawerDestination.fromRoute(savedRoute ?: DrawerDestination.Users.route)
             }
@@ -102,7 +102,7 @@ fun MainScreen() {
                                 delay(250)
                                 if (screenBackStack.lastOrNull() != destination) {
                                     screenBackStack.add(destination)
-                                    ScreenPreferencesDataStore.saveLastScreen(
+                                    ScreenDataStore.saveLastScreen(
                                         context,
                                         destination.route
                                     )

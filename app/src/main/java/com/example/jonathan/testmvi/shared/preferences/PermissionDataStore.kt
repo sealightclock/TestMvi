@@ -20,12 +20,12 @@ object PermissionKeys {
 object PermissionPreferences {
     fun hasRequestedFineLocation(context: Context): Flow<Boolean> =
         context.permissionDataStore.data.map { prefs ->
-            prefs[PermissionKeys.FineLocationRequested] ?: false
+            prefs[PermissionKeys.FineLocationRequested] == true
         }
 
     fun hasRequestedBackgroundLocation(context: Context): Flow<Boolean> =
         context.permissionDataStore.data.map { prefs ->
-            prefs[PermissionKeys.BackgroundLocationRequested] ?: false
+            prefs[PermissionKeys.BackgroundLocationRequested] == true
         }
 
     suspend fun markFineLocationRequested(context: Context) {
@@ -34,6 +34,7 @@ object PermissionPreferences {
         }
     }
 
+    // TODO: Keep this for later
     suspend fun markBackgroundLocationRequested(context: Context) {
         context.permissionDataStore.edit { prefs ->
             prefs[PermissionKeys.BackgroundLocationRequested] = true

@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.map
 
 private val Context.screenDataStore by preferencesDataStore(name = "screen_prefs")
 
-object ScreenPreferencesDataStore {
+object ScreenDataStore {
     private val LAST_SCREEN_KEY = stringPreferencesKey("last_screen")
 
     fun lastScreenFlow(context: Context): Flow<String?> {

@@ -1,14 +1,13 @@
-package com.example.jonathan.testmvi.features.users.presentation.factory
+package com.example.jonathan.testmvi.features.users.presentation.viewmodel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.jonathan.testmvi.features.users.data.datasource.UsersDataStoreApi
-import com.example.jonathan.testmvi.features.users.data.datasource.UsersLocalDataSource
+import com.example.jonathan.testmvi.features.users.data.datasource.local.UsersDataStoreApi
+import com.example.jonathan.testmvi.features.users.data.datasource.local.UsersLocalDataSource
 import com.example.jonathan.testmvi.features.users.data.repository.UsersRepository
-import com.example.jonathan.testmvi.features.users.domain.usecase.GetUsersFromLocal
-import com.example.jonathan.testmvi.features.users.domain.usecase.StoreUsersToLocal
-import com.example.jonathan.testmvi.features.users.presentation.viewmodel.UsersViewModel
+import com.example.jonathan.testmvi.features.users.domain.usecase.GetUsersFromLocalUseCase
+import com.example.jonathan.testmvi.features.users.domain.usecase.StoreUsersToLocalUseCase
 
 /**
  * Factory that creates UsersViewModel with dependencies wired manually.
@@ -23,8 +22,8 @@ class UsersViewModelFactory(
         val api = UsersDataStoreApi(appContext)
         val local = UsersLocalDataSource(api)
         val repo = UsersRepository(local)
-        val getUseCase = GetUsersFromLocal(repo)
-        val storeUseCase = StoreUsersToLocal(repo)
+        val getUseCase = GetUsersFromLocalUseCase(repo)
+        val storeUseCase = StoreUsersToLocalUseCase(repo)
 
         return UsersViewModel(getUseCase, storeUseCase) as T
     }

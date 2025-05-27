@@ -1,4 +1,4 @@
-package com.example.jonathan.testmvi.features.users.data.datasource
+package com.example.jonathan.testmvi.features.users.data.datasource.local
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
@@ -17,20 +17,20 @@ class UsersDataStoreApi(context: Context) {
     private val Context.dataStore by preferencesDataStore(name = "users_pref")
 
     private val dataStore = context.dataStore
-    private val USERS_KEY = stringPreferencesKey("users_json")
+    private val usersKey = stringPreferencesKey("users_json")
 
     suspend fun saveUsers(userList: List<UserDto>) {
-        val json = Json.encodeToString(userList)
+        val json = Json.Default.encodeToString(userList)
         dataStore.edit { prefs ->
-            prefs[USERS_KEY] = json
+            prefs[usersKey] = json
         }
     }
 
     suspend fun loadUsers(): List<UserDto> {
         val prefs = dataStore.data.first()
-        val json = prefs[USERS_KEY] ?: return emptyList()
+        val json = prefs[usersKey] ?: return emptyList()
         return runCatching {
-            Json.decodeFromString<List<UserDto>>(json)
+            Json.Default.decodeFromString<List<UserDto>>(json)
         }.getOrDefault(emptyList())
     }
 }

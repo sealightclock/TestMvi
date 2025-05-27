@@ -3,8 +3,8 @@ package com.example.jonathan.testmvi.features.users.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.jonathan.testmvi.features.users.domain.entity.UserEntity
-import com.example.jonathan.testmvi.features.users.domain.usecase.GetUsersFromLocal
-import com.example.jonathan.testmvi.features.users.domain.usecase.StoreUsersToLocal
+import com.example.jonathan.testmvi.features.users.domain.usecase.GetUsersFromLocalUseCase
+import com.example.jonathan.testmvi.features.users.domain.usecase.StoreUsersToLocalUseCase
 import com.example.jonathan.testmvi.features.users.presentation.intent.UsersIntent
 import com.example.jonathan.testmvi.features.users.presentation.state.UsersState
 import kotlinx.coroutines.flow.*
@@ -16,8 +16,8 @@ import kotlinx.coroutines.launch
  * Persists data using Preferences DataStore via UseCases.
  */
 class UsersViewModel(
-    private val getUsersFromLocal: GetUsersFromLocal,
-    private val storeUsersToLocal: StoreUsersToLocal
+    private val getUsersFromLocal: GetUsersFromLocalUseCase,
+    private val storeUsersToLocal: StoreUsersToLocalUseCase
 ) : ViewModel() {
 
     private val _usersState = MutableStateFlow(UsersState())

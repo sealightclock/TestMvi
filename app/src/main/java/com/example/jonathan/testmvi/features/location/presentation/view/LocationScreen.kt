@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.jonathan.testmvi.features.location.data.repository.LocationRepositoryImpl
+import com.example.jonathan.testmvi.features.location.data.datasource.platform.LocationDataSource
 import com.example.jonathan.testmvi.features.location.domain.usecase.GetCurrentLocationUseCase
 import com.example.jonathan.testmvi.features.location.presentation.viewmodel.LocationViewModel
 import com.example.jonathan.testmvi.shared.permission.LocationPermissionGate
@@ -57,7 +57,7 @@ private fun LocationScreenContent() {
     val viewModel: LocationViewModel = viewModel(
         factory = viewModelFactory {
             initializer {
-                val repo = LocationRepositoryImpl(context)
+                val repo = LocationDataSource(context)
                 val useCase = GetCurrentLocationUseCase(repo)
                 LocationViewModel(useCase)
             }

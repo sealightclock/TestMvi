@@ -4,8 +4,8 @@ import com.example.jonathan.testmvi.features.users.data.repository.UsersReposito
 import com.example.jonathan.testmvi.features.users.domain.entity.UserEntity
 
 /**
- * Loads users from the local DataStore.
+ * Stores users to the local DataStore.
  */
-class GetUsersFromLocal(private val repository: UsersRepository) {
-    suspend operator fun invoke(): List<UserEntity> = repository.loadUsers()
+class StoreUsersToLocalUseCase(private val repository: UsersRepository) {
+    suspend operator fun invoke(users: List<UserEntity>) = repository.saveUsers(users)
 }
