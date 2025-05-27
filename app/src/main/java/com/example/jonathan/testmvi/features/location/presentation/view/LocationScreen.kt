@@ -70,13 +70,21 @@ private fun LocationScreenContent() {
         Text("Location & Speed", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(16.dp))
 
+        state.locationName?.let {
+            Text("Location: $it")
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
         state.latitude?.let { Text("Latitude: $it") }
         state.longitude?.let { Text("Longitude: $it") }
         state.speedMph?.let { Text("Speed: ${"%.2f".format(it)} mph") }
 
-        if (state.isLoading) {
-            Spacer(modifier = Modifier.height(8.dp))
-            CircularProgressIndicator()
+        // ✅ Show spinner only while loading AND no location has been shown yet
+        if (state.isLoading && state.latitude == null && state.longitude == null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Box(modifier = Modifier.height(40.dp)) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
         }
 
         state.error?.let {
