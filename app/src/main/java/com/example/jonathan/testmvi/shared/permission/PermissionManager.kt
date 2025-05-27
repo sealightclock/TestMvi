@@ -26,75 +26,42 @@ fun LocationPermissionGate(
 ) {
     val context = LocalContext.current
     val fineLocationState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
-    val backgroundLocationState = rememberPermissionState(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
     val coroutineScope = rememberCoroutineScope()
 
     val hasRequestedFineLocation by produceState(initialValue = false, context) {
         PermissionPreferences.hasRequestedFineLocation(context).collect { value = it }
     }
 
-    val hasRequestedBackgroundLocation by produceState(initialValue = false, context) {
-        PermissionPreferences.hasRequestedBackgroundLocation(context).collect { value = it }
-    }
-
     when {
-        fineLocationState.status.isGranted && backgroundLocationState.status.isGranted -> {
+        fineLocationState.status.isGranted -> {
+            // Permission is granted: Proceed to show location UI
             onPermissionGranted()
         }
 
-        !fineLocationState.status.isGranted -> {
-            when {
-                fineLocationState.status.shouldShowRationale -> {
-                    RationaleUI("Location permission is required to show your current location and speed.") {
-                        coroutineScope.launch {
-                            PermissionPreferences.markFineLocationRequested(context)
-                            fineLocationState.launchPermissionRequest()
-                        }
-                    }
-                }
-
-                !fineLocationState.status.shouldShowRationale && !fineLocationState.status.isGranted && !hasRequestedFineLocation -> {
-                    RationaleUI("This feature requires location access.") {
-                        coroutineScope.launch {
-                            PermissionPreferences.markFineLocationRequested(context)
-                            fineLocationState.launchPermissionRequest()
-                        }
-                    }
-                }
-
-                else -> {
-                    PermanentlyDeniedUI("Location permission is permanently denied. Please enable it in App Settings.") {
-                        openAppSettings(context)
-                    }
+        fineLocationState.status.shouldShowRationale -> {
+            // User previously denied, but can still grant
+            RationaleUI("Location permission is required to show your current location and speed.") {
+                coroutineScope.launch {
+                    PermissionPreferences.markFineLocationRequested(context)
+                    fineLocationState.launchPermissionRequest()
                 }
             }
         }
 
-        !backgroundLocationState.status.isGranted -> {
-            when {
-                backgroundLocationState.status.shouldShowRationale -> {
-                    RationaleUI("Background location is needed to continue tracking when the app is closed.") {
-                        coroutineScope.launch {
-                            PermissionPreferences.markBackgroundLocationRequested(context)
-                            backgroundLocationState.launchPermissionRequest()
-                        }
-                    }
+        !hasRequestedFineLocation -> {
+            // First time asking
+            RationaleUI("This feature requires location access.") {
+                coroutineScope.launch {
+                    PermissionPreferences.markFineLocationRequested(context)
+                    fineLocationState.launchPermissionRequest()
                 }
+            }
+        }
 
-                !backgroundLocationState.status.shouldShowRationale && !backgroundLocationState.status.isGranted && !hasRequestedBackgroundLocation -> {
-                    RationaleUI("To track location in background, grant background access.") {
-                        coroutineScope.launch {
-                            PermissionPreferences.markBackgroundLocationRequested(context)
-                            backgroundLocationState.launchPermissionRequest()
-                        }
-                    }
-                }
-
-                else -> {
-                    PermanentlyDeniedUI("Background location permission is permanently denied. Enable it in App Settings.") {
-                        openAppSettings(context)
-                    }
-                }
+        else -> {
+            // Permission permanently denied
+            PermanentlyDeniedUI("Location permission is permanently denied. Please enable it in App Settings.") {
+                openAppSettings(context)
             }
         }
     }
