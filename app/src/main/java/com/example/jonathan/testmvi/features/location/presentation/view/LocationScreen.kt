@@ -8,11 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.jonathan.testmvi.features.location.data.datasource.platform.LocationDataSource
-import com.example.jonathan.testmvi.features.location.domain.usecase.GetCurrentLocationUseCase
 import com.example.jonathan.testmvi.features.location.presentation.viewmodel.LocationViewModel
+import com.example.jonathan.testmvi.features.location.presentation.viewmodel.LocationViewModelFactory
 import com.example.jonathan.testmvi.shared.permission.LocationPermissionGate
 import com.example.jonathan.testmvi.shared.preferences.PermissionPreferences
 import com.example.jonathan.testmvi.shared.ui.CommonTopBar
@@ -54,15 +51,8 @@ fun LocationScreen() {
 private fun LocationScreenContent() {
     val context = LocalContext.current.applicationContext
 
-    val viewModel: LocationViewModel = viewModel(
-        factory = viewModelFactory {
-            initializer {
-                val repo = LocationDataSource(context)
-                val useCase = GetCurrentLocationUseCase(repo)
-                LocationViewModel(useCase)
-            }
-        }
-    )
+    val factory = remember { LocationViewModelFactory(context) }
+    val viewModel: LocationViewModel = viewModel(factory = factory)
 
     val state by viewModel.state.collectAsState()
 
