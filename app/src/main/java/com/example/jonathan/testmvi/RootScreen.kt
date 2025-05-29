@@ -1,35 +1,14 @@
 package com.example.jonathan.testmvi
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -61,6 +40,9 @@ fun RootScreen() {
 
     val isScreenRestored = lastScreenState.value != null
     val currentScreen = remember { derivedStateOf { screenBackStack.lastOrNull() } }
+
+    // Track navigation animation state
+    val isNavigating = remember { mutableStateOf(false) }
 
     // Initialize the backstack with restored screen
     LaunchedEffect(isScreenRestored) {
@@ -98,14 +80,15 @@ fun RootScreen() {
                         },
                         onClick = {
                             scope.launch {
-                                drawerState.close()
-                                delay(250)
                                 if (screenBackStack.lastOrNull() != destination) {
+                                    isNavigating.value = true
                                     screenBackStack.add(destination)
-                                    ScreenDataStore.saveLastScreen(
-                                        context,
-                                        destination.route
-                                    )
+                                    ScreenDataStore.saveLastScreen(context, destination.route)
+                                    drawerState.close()
+                                    delay(250) // Delay after screen change
+                                    isNavigating.value = false
+                                } else {
+                                    drawerState.close()
                                 }
                             }
                         }
@@ -115,30 +98,40 @@ fun RootScreen() {
         }
     ) {
         if (isScreenRestored) {
-            Scaffold(
-                topBar = {
-                    CenterAlignedTopAppBar(
-                        title = { Text("TestMvi App") },
-                        navigationIcon = {
-                            IconButton(onClick = {
-                                scope.launch { drawerState.open() }
-                            }) {
-                                Icon(Icons.Default.Menu, contentDescription = "Menu")
-                            }
-                        }
-                    )
-                }
-            ) { innerPadding ->
+            if (isNavigating.value) {
+                // Show spinner during navigation transition
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    when (currentScreen.value) {
-                        is DrawerDestination.Users -> UsersScreen()
-                        is DrawerDestination.Settings -> SettingsScreen()
-                        is DrawerDestination.Location -> LocationScreen()
-                        null -> {} // should never happen after init
+                    CircularProgressIndicator()
+                }
+            } else {
+                Scaffold(
+                    topBar = {
+                        CenterAlignedTopAppBar(
+                            title = { Text("TestMvi App") },
+                            navigationIcon = {
+                                IconButton(onClick = {
+                                    scope.launch { drawerState.open() }
+                                }) {
+                                    Icon(Icons.Default.Menu, contentDescription = "Menu")
+                                }
+                            }
+                        )
+                    }
+                ) { innerPadding ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                    ) {
+                        when (currentScreen.value) {
+                            is DrawerDestination.Users -> UsersScreen()
+                            is DrawerDestination.Settings -> SettingsScreen()
+                            is DrawerDestination.Location -> LocationScreen()
+                            null -> {} // should never happen after init
+                        }
                     }
                 }
             }
