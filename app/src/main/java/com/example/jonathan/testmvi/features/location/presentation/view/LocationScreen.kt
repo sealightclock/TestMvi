@@ -33,15 +33,24 @@ fun LocationScreen() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.Center
+                .padding(innerPadding)
+                .padding(16.dp)
         ) {
-            if (hasRequestedFineLocation != null && hasRequestedBackgroundLocation != null) {
-                LocationPermissionGate {
+            // Always render the gate to maintain stable layout
+            LocationPermissionGate {
+                if (hasRequestedFineLocation != null && hasRequestedBackgroundLocation != null) {
                     LocationScreenContent()
+                } else {
+                    // Inline loader to keep layout stable
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp), // reserve vertical space
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
-            } else {
-                CircularProgressIndicator()
             }
         }
     }
