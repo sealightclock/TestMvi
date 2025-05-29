@@ -23,17 +23,17 @@ class LocationViewModel(
 
     fun handleIntent(intent: LocationIntent) {
         when (intent) {
-            is LocationIntent.LoadLocation -> startLocationUpdates()
+            is LocationIntent.LoadLocation -> loadLocation()
         }
     }
 
-    private fun startLocationUpdates() {
+    private fun loadLocation() {
         viewModelScope.launch {
             while (true) {
                 _state.value = _state.value.copy(isLoading = true, error = null)
 
                 try {
-                    val location = getCurrentLocationUseCase()
+                    val location = getCurrentLocationUseCase.invoke()
 
                     if (location != null) {
                         val current = _state.value

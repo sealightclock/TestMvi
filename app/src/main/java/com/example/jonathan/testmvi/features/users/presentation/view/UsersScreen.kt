@@ -53,11 +53,11 @@ fun UsersScreen() {
     }
 
     val onNameChange: (String) -> Unit = remember(viewModel) {
-        { viewModel.handleIntent(UsersIntent.UpdateName(it)) }
+        { viewModel.handleIntent(UsersIntent.UpdateInputName(it)) }
     }
 
     val onAgeChange: (String) -> Unit = remember(viewModel) {
-        { viewModel.handleIntent(UsersIntent.UpdateAge(it)) }
+        { viewModel.handleIntent(UsersIntent.UpdateInputAge(it)) }
     }
 
     val onAddUser: () -> Unit = remember(viewModel) {
@@ -81,7 +81,7 @@ fun UsersScreen() {
             ) {
                 item {
                     TextField(
-                        value = state.name,
+                        value = state.inputName,
                         onValueChange = onNameChange,
                         label = { Text("Name") },
                         enabled = !state.isLoading
@@ -92,7 +92,7 @@ fun UsersScreen() {
 
                 item {
                     TextField(
-                        value = state.age,
+                        value = state.inputAge,
                         onValueChange = onAgeChange,
                         label = { Text("Age") },
                         enabled = !state.isLoading
@@ -120,7 +120,7 @@ fun UsersScreen() {
                     }
                 }
 
-                if (state.users.isNotEmpty()) {
+                if (state.createdUsers.isNotEmpty()) {
                     item { Spacer(modifier = Modifier.height(24.dp)) }
                     item {
                         Text(
@@ -130,7 +130,7 @@ fun UsersScreen() {
                     }
                     item { Spacer(modifier = Modifier.height(8.dp)) }
 
-                    items(state.users) { user ->
+                    items(state.createdUsers) { user ->
                         Text("- ${user.name}, age ${user.age}")
                     }
                 }

@@ -16,8 +16,8 @@ import kotlinx.coroutines.launch
  * Persists data using Preferences DataStore via UseCases.
  */
 class UsersViewModel(
-    private val getUsersFromLocal: GetUsersFromLocalUseCase,
-    private val storeUsersToLocal: StoreUsersToLocalUseCase
+    private val getUsersFromLocalUseCase: GetUsersFromLocalUseCase,
+    private val storeUsersToLocalUseCase: StoreUsersToLocalUseCase
 ) : ViewModel() {
 
     private val _usersState = MutableStateFlow(UsersState())
@@ -27,63 +27,67 @@ class UsersViewModel(
     val errorEvent: SharedFlow<String> = _errorEvent
 
     init {
-        handleIntent(UsersIntent.LoadUsers)
+        handleIntent(UsersIntent.LoadCreatedUsers)
     }
 
     fun handleIntent(intent: UsersIntent) {
         when (intent) {
-            is UsersIntent.UpdateName -> {
-                _usersState.update { it.copy(name = intent.newName) }
-            }
+            is UsersIntent.UpdateInputName -> updateInputName(intent.newName)
 
-            is UsersIntent.UpdateAge -> {
-                _usersState.update { it.copy(age = intent.newAge) }
-            }
+            is UsersIntent.UpdateInputAge -> updateInputAge(intent.newAge)
 
-            is UsersIntent.AddUser -> {
-                viewModelScope.launch {
-                    val currentState = _usersState.value
-                    val name = currentState.name.trim()
-                    val ageStr = currentState.age.trim()
+            is UsersIntent.AddUser -> addUser()
 
-                    // Validate inputs
-                    val ageInt = ageStr.toIntOrNull()
-                    when {
-                        name.isEmpty() -> _errorEvent.emit("Name cannot be empty.")
-                        ageInt == null || ageInt !in 0..200 -> _errorEvent.emit("Age must be an integer between 0 and 200.")
-                        currentState.users.any { it.name == name && it.age == ageStr } ->
-                            _errorEvent.emit("This user already exists.")
-                        currentState.users.size >= 5 ->
-                            _errorEvent.emit("Cannot add more than 5 users.")
-                        else -> {
-                            val newUser = UserEntity(name = name, age = ageStr)
-                            val updatedList = currentState.users + newUser
+            is UsersIntent.LoadCreatedUsers -> loadCreatedUsers()
+        }
+    }
 
-                            // Update state
-                            _usersState.value = currentState.copy(
-                                name = "",
-                                age = "0",
-                                users = updatedList
-                            )
+    private fun updateInputName(newName: String) {
+        _usersState.update { it.copy(inputName = newName) }
+    }
 
-                            // Persist updated list
-                            storeUsersToLocal(updatedList)
-                        }
-                    }
+    private fun updateInputAge(newAge: String) {
+        _usersState.update { it.copy(inputAge = newAge) }
+    }
+
+    private fun addUser() {
+        viewModelScope.launch {
+            val currentState = _usersState.value
+            val name = currentState.inputName.trim()
+            val ageStr = currentState.inputAge.trim()
+
+            // Validate inputs
+            val ageInt = ageStr.toIntOrNull()
+            when {
+                name.isEmpty() -> _errorEvent.emit("Name cannot be empty.")
+                ageInt == null || ageInt !in 0..200 -> _errorEvent.emit("Age must be an integer between 0 and 200.")
+                currentState.createdUsers.any { it.name == name && it.age == ageStr } ->
+                    _errorEvent.emit("This user already exists.")
+                currentState.createdUsers.size >= 5 ->
+                    _errorEvent.emit("Cannot add more than 5 users.")
+                else -> {
+                    val newUser = UserEntity(name = name, age = ageStr)
+                    val updatedList = currentState.createdUsers + newUser
+
+                    // Update state
+                    _usersState.value = currentState.copy(
+                        inputName = "",
+                        inputAge = "0",
+                        createdUsers = updatedList
+                    )
+
+                    // Persist updated list
+                    storeUsersToLocalUseCase.invoke(updatedList)
                 }
             }
+        }
+    }
 
-            is UsersIntent.LoadUsers -> {
-                viewModelScope.launch {
-                    _usersState.update { it.copy(isLoading = true) }
-                    val loadedUsers = getUsersFromLocal()
-                    _usersState.update { it.copy(isLoading = false, users = loadedUsers) }
-                }
-            }
-
-            is UsersIntent.ClearError -> {
-                // No-op for now, errorEvent is auto-cleared after emission
-            }
+    private fun loadCreatedUsers() {
+        viewModelScope.launch {
+            _usersState.update { it.copy(isLoading = true) }
+            val loadedUsers = getUsersFromLocalUseCase.invoke()
+            _usersState.update { it.copy(isLoading = false, createdUsers = loadedUsers) }
         }
     }
 }
