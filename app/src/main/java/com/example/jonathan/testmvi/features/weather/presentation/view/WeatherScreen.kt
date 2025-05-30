@@ -40,6 +40,7 @@ fun WeatherScreen() {
                 )
                 val locationRepo = LocationRepositoryImpl(LocationDataSource(context))
                 WeatherViewModelFactory(
+                    context = context.applicationContext,
                     GetWeatherByLocationUseCase(weatherRepo),
                     GetCurrentLocationUseCase(locationRepo)
                 ).create(WeatherViewModel::class.java)
@@ -50,7 +51,7 @@ fun WeatherScreen() {
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.handleIntent(WeatherIntent.LoadWeatherFromCurrentLocation)
+        viewModel.handleIntent(WeatherIntent.LoadWeatherFromSavedLocation)
     }
 
     Scaffold(topBar = {
