@@ -30,7 +30,7 @@ fun WeatherScreen() {
     val context = LocalContext.current
 
     // ✅ Replace this with your actual OpenWeatherMap API key
-    val openWeatherApiKey = "YOUR_OPENWEATHERMAP_API_KEY"
+    val openWeatherApiKey = "cc9a943e9b0082101297ca40b03f1f83"
 
     val viewModel: WeatherViewModel = viewModel(
         factory = viewModelFactory {
