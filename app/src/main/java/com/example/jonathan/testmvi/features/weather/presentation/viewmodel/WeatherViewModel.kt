@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.jonathan.testmvi.features.location.domain.usecase.GetCurrentLocationUseCase
-import com.example.jonathan.testmvi.features.weather.data.datasource.local.WeatherDataStoreApi
+import com.example.jonathan.testmvi.features.weather.data.datasource.local.WeatherDataStoreDataSource
 import com.example.jonathan.testmvi.features.weather.domain.usecase.GetWeatherByLocationUseCase
 import com.example.jonathan.testmvi.features.weather.presentation.intent.WeatherIntent
 import com.example.jonathan.testmvi.features.weather.presentation.state.WeatherState
@@ -42,7 +42,7 @@ class WeatherViewModel(
 
     private fun loadFromSavedLocation() {
         viewModelScope.launch {
-            val savedLocation = WeatherDataStoreApi.lastLocationFlow(context).first()
+            val savedLocation = WeatherDataStoreDataSource.lastLocationFlow(context).first()
             if (!savedLocation.isNullOrBlank()) {
                 loadFromLocationInput(savedLocation)
             } else {
@@ -63,7 +63,7 @@ class WeatherViewModel(
 
                 val fullLocation = location.locationName ?: "${location.latitude}, ${location.longitude}"
                 val weather = getWeatherByLocationUseCase(fullLocation)
-                WeatherDataStoreApi.saveLastLocation(context, fullLocation)
+                WeatherDataStoreDataSource.saveLastLocation(context, fullLocation)
                 _state.value = WeatherUiMapper.toState(weather, fullLocation)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(isLoading = false, error = e.message)
@@ -76,7 +76,7 @@ class WeatherViewModel(
             _state.value = _state.value.copy(isLoading = true, error = null)
             try {
                 val weather = getWeatherByLocationUseCase(input)
-                WeatherDataStoreApi.saveLastLocation(context, input)
+                WeatherDataStoreDataSource.saveLastLocation(context, input)
                 _state.value = WeatherUiMapper.toState(weather, input)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(isLoading = false, error = e.message)

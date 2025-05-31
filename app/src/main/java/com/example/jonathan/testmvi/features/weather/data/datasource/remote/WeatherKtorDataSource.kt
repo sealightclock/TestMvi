@@ -1,4 +1,4 @@
-package com.example.jonathan.testmvi.features.weather.data.datasource
+package com.example.jonathan.testmvi.features.weather.data.datasource.remote
 
 import android.util.Log
 import com.example.jonathan.testmvi.features.weather.data.dto.WeatherDto
@@ -14,7 +14,7 @@ import kotlinx.serialization.json.Json
 /**
  * Handles communication with the OpenWeatherMap API.
  */
-class WeatherApiDataSource(
+class WeatherKtorDataSource(
     apiKey: String
 ) {
     private val client = HttpClient {

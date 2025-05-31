@@ -16,7 +16,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.jonathan.testmvi.features.location.data.datasource.platform.LocationDataSource
 import com.example.jonathan.testmvi.features.location.data.repository.LocationRepositoryImpl
 import com.example.jonathan.testmvi.features.location.domain.usecase.GetCurrentLocationUseCase
-import com.example.jonathan.testmvi.features.weather.data.datasource.WeatherApiDataSource
+import com.example.jonathan.testmvi.features.weather.data.datasource.remote.WeatherKtorDataSource
 import com.example.jonathan.testmvi.features.weather.data.repository.WeatherRepositoryImpl
 import com.example.jonathan.testmvi.features.weather.domain.usecase.GetWeatherByLocationUseCase
 import com.example.jonathan.testmvi.features.weather.presentation.intent.WeatherIntent
@@ -36,7 +36,7 @@ fun WeatherScreen() {
         factory = viewModelFactory {
             initializer {
                 val weatherRepo = WeatherRepositoryImpl(
-                    WeatherApiDataSource(openWeatherApiKey)
+                    WeatherKtorDataSource(openWeatherApiKey)
                 )
                 val locationRepo = LocationRepositoryImpl(LocationDataSource(context))
                 WeatherViewModelFactory(
