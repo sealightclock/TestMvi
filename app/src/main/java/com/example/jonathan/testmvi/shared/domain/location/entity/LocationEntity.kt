@@ -1,5 +1,6 @@
+package com.example.jonathan.testmvi.shared.domain.location.entity
 
-package com.example.jonathan.testmvi.features.location.domain.entity
+import kotlin.math.abs
 
 data class LocationEntity(
     val latitude: Double,
@@ -9,9 +10,9 @@ data class LocationEntity(
 ) {
     fun isSameAs(other: LocationEntity, epsilon: Double = 0.0001, floatEpsilon: Float = 0.01f):
             Boolean {
-        return kotlin.math.abs(x = latitude - other.latitude) < epsilon &&
-                kotlin.math.abs(longitude - other.longitude) < epsilon &&
-                kotlin.math.abs(speedMph - other.speedMph) < floatEpsilon &&
+        return abs(x = latitude - other.latitude) < epsilon &&
+                abs(longitude - other.longitude) < epsilon &&
+                abs(speedMph - other.speedMph) < floatEpsilon &&
                 locationName == other.locationName
     }
 }

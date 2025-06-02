@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.jonathan.testmvi.features.location.data.datasource.platform.LocationDataSource
 import com.example.jonathan.testmvi.features.location.data.repository.LocationRepositoryImpl
-import com.example.jonathan.testmvi.features.location.domain.usecase.GetCurrentLocationUseCase
+import com.example.jonathan.testmvi.shared.domain.location.usecase.GetCurrentLocationUseCase
 
 /**
  * Factory to create LocationViewModel with dependencies injected.

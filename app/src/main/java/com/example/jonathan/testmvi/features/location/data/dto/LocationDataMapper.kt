@@ -1,6 +1,6 @@
 package com.example.jonathan.testmvi.features.location.data.dto
 
-import com.example.jonathan.testmvi.features.location.domain.entity.LocationEntity
+import com.example.jonathan.testmvi.shared.domain.location.entity.LocationEntity
 
 /**
  * Responsible for converting between DTOs and domain entities.

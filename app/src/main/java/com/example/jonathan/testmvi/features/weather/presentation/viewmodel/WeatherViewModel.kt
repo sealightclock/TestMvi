@@ -2,7 +2,7 @@ package com.example.jonathan.testmvi.features.weather.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.jonathan.testmvi.features.location.domain.usecase.GetCurrentLocationUseCase
+import com.example.jonathan.testmvi.shared.domain.location.usecase.GetCurrentLocationUseCase
 import com.example.jonathan.testmvi.features.weather.domain.usecase.GetLastWeatherLocationUseCase
 import com.example.jonathan.testmvi.features.weather.domain.usecase.GetWeatherByLocationUseCase
 import com.example.jonathan.testmvi.features.weather.domain.usecase.StoreLastWeatherLocationUseCase

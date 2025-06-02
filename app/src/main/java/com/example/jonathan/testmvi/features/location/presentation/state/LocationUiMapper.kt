@@ -1,6 +1,6 @@
 package com.example.jonathan.testmvi.features.location.presentation.state
 
-import com.example.jonathan.testmvi.features.location.domain.entity.LocationEntity
+import com.example.jonathan.testmvi.shared.domain.location.entity.LocationEntity
 
 /**
  * A mapper class to convert between UI state (LocationState) and domain entity (LocationEntity).

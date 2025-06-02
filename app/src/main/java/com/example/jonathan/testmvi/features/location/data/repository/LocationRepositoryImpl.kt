@@ -2,7 +2,7 @@ package com.example.jonathan.testmvi.features.location.data.repository
 
 import com.example.jonathan.testmvi.features.location.data.datasource.platform.LocationDataSource
 import com.example.jonathan.testmvi.features.location.data.dto.LocationDataMapper.toEntity
-import com.example.jonathan.testmvi.features.location.domain.entity.LocationEntity
+import com.example.jonathan.testmvi.shared.domain.location.entity.LocationEntity
 
 /**
  * Converts raw DTO data into LocationEntity.
