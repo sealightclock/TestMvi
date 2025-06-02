@@ -5,13 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.jonathan.testmvi.features.location.data.datasource.platform.LocationDataSource
 import com.example.jonathan.testmvi.features.location.data.repository.LocationRepositoryImpl
-import com.example.jonathan.testmvi.shared.domain.location.usecase.GetCurrentLocationUseCase
+import com.example.jonathan.testmvi.features.weather.data.datasource.local.WeatherDataStoreApi
 import com.example.jonathan.testmvi.features.weather.data.datasource.local.WeatherDataStoreDataSource
 import com.example.jonathan.testmvi.features.weather.data.datasource.remote.WeatherKtorDataSource
 import com.example.jonathan.testmvi.features.weather.data.repository.WeatherRepositoryImpl
 import com.example.jonathan.testmvi.features.weather.domain.usecase.GetLastWeatherLocationUseCase
 import com.example.jonathan.testmvi.features.weather.domain.usecase.GetWeatherByLocationUseCase
 import com.example.jonathan.testmvi.features.weather.domain.usecase.StoreLastWeatherLocationUseCase
+import com.example.jonathan.testmvi.shared.domain.location.usecase.GetCurrentLocationUseCase
 
 /**
  * Creates WeatherViewModel with full dependency setup.
@@ -27,9 +28,10 @@ class WeatherViewModelFactory(
             throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
 
-        // Remote + Local DataSources
+        // Remote and Local DataSources
         val weatherRemote = WeatherKtorDataSource(apiKey = "cc9a943e9b0082101297ca40b03f1f83")
-        val weatherLocal = WeatherDataStoreDataSource(context)
+        val weatherLocalApi = WeatherDataStoreApi(context)
+        val weatherLocal = WeatherDataStoreDataSource(weatherLocalApi)
 
         // Repositories
         val weatherRepo = WeatherRepositoryImpl(weatherRemote, weatherLocal)

@@ -6,7 +6,7 @@ import com.example.jonathan.testmvi.features.users.data.dto.UserDto
  * Handles only data-layer models (DTOs) and delegates persistence to UsersDataStoreApi.
  * Domain-layer entities should not be visible here.
  */
-class UsersLocalDataSource(private val dataStoreApi: UsersDataStoreApi) {
+class UsersDataStoreDataSource(private val dataStoreApi: UsersDataStoreApi) {
 
     suspend fun getUsers(): List<UserDto> {
         return dataStoreApi.loadUsers()
