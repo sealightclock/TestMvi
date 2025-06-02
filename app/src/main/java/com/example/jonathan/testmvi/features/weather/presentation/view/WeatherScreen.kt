@@ -1,10 +1,24 @@
 package com.example.jonathan.testmvi.features.weather.presentation.view
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -16,9 +30,12 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.jonathan.testmvi.features.location.data.datasource.platform.LocationDataSource
 import com.example.jonathan.testmvi.features.location.data.repository.LocationRepositoryImpl
 import com.example.jonathan.testmvi.features.location.domain.usecase.GetCurrentLocationUseCase
+import com.example.jonathan.testmvi.features.weather.data.datasource.local.WeatherDataStoreDataSource
 import com.example.jonathan.testmvi.features.weather.data.datasource.remote.WeatherKtorDataSource
 import com.example.jonathan.testmvi.features.weather.data.repository.WeatherRepositoryImpl
+import com.example.jonathan.testmvi.features.weather.domain.usecase.GetLastWeatherLocationUseCase
 import com.example.jonathan.testmvi.features.weather.domain.usecase.GetWeatherByLocationUseCase
+import com.example.jonathan.testmvi.features.weather.domain.usecase.StoreLastWeatherLocationUseCase
 import com.example.jonathan.testmvi.features.weather.presentation.intent.WeatherIntent
 import com.example.jonathan.testmvi.features.weather.presentation.viewmodel.WeatherViewModel
 import com.example.jonathan.testmvi.features.weather.presentation.viewmodel.WeatherViewModelFactory
@@ -27,23 +44,28 @@ import com.example.jonathan.testmvi.shared.ui.CommonTopBar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherScreen() {
-    val context = LocalContext.current
-
-    // ✅ Replace this with your actual OpenWeatherMap API key
+    val context = LocalContext.current.applicationContext
     val openWeatherApiKey = "cc9a943e9b0082101297ca40b03f1f83"
 
     val viewModel: WeatherViewModel = viewModel(
         factory = viewModelFactory {
             initializer {
-                val weatherRepo = WeatherRepositoryImpl(
-                    WeatherKtorDataSource(openWeatherApiKey)
-                )
+                // Remote + Local DataSources
+                val weatherRemote = WeatherKtorDataSource(openWeatherApiKey)
+                val weatherLocal = WeatherDataStoreDataSource(context)
+
+                // Repository with both sources
+                val weatherRepo = WeatherRepositoryImpl(weatherRemote, weatherLocal)
                 val locationRepo = LocationRepositoryImpl(LocationDataSource(context))
-                WeatherViewModelFactory(
-                    context = context.applicationContext,
-                    GetWeatherByLocationUseCase(weatherRepo),
-                    GetCurrentLocationUseCase(locationRepo)
-                ).create(WeatherViewModel::class.java)
+
+                // Use Cases
+                val getWeather = GetWeatherByLocationUseCase(weatherRepo)
+                val getLocation = GetCurrentLocationUseCase(locationRepo)
+                val getLast = GetLastWeatherLocationUseCase(weatherRepo)
+                val storeLast = StoreLastWeatherLocationUseCase(weatherRepo)
+
+                WeatherViewModelFactory(getWeather, getLocation, getLast, storeLast)
+                    .create(WeatherViewModel::class.java)
             }
         }
     )
