@@ -5,8 +5,6 @@
 This is a dummy Android app built with the "MVI" or "MVVM Clean + Intent" architecture, for testing and
 learning purposes.
 
-Refer to file "CONTRIBUTING.md" for guidelines for developing an Android app.
-
 ## Technologies used
 
 This Android app uses the following technologies:
@@ -36,67 +34,67 @@ This Android app uses the following specialized technologies:
 
 ---- **view**/
 
------- <Feature>Screen.kt
+------ [Feature]Screen.kt
 
 ---- model/
 
------- <Feature>Model.kt (Presentation layer entity)
+------ [Feature]Model.kt (Presentation layer entity)
 
------- <Feature>UiMapper.kt (for conversion between Presentation and Domain layers)
+------ [Feature]UiMapper.kt (for conversion between Presentation and Domain layers)
 
 ---- **viewmodel**/
 
------- <Feature>Viewmodel.kt
+------ [Feature]Viewmodel.kt
 
------- <Feature>ViewmodelFactory.kt
+------ [Feature]ViewmodelFactory.kt
 
 #### -- ***domain***/
 
 ---- **entity**/
 
------- <Feature>Entity.kt (Domain layer entity)
+------ [Feature]Entity.kt (Domain layer entity)
 
 ---- **usecase**/
 
------- Get<Feature>FromLocalUseCase.kt
+------ Get[Feature]FromLocalUseCase.kt
 
------- Store<Feature>ToLocalUseCase.kt
+------ Store[Feature]ToLocalUseCase.kt
 
------- Get<Feature>FromRemoteUseCase.kt
+------ Get[Feature]FromRemoteUseCase.kt
 
 #### -- ***data***/
 
 ---- dto/
 
------- <Feature>DatastoreDto.kt (Data layer entity)
+------ [Feature]DatastoreDto.kt (Data layer entity)
 
------- <Feature>DatastoreDataMapper.kt (for conversion between Data and Domain layers)
+------ [Feature]DatastoreDataMapper.kt (for conversion between Data and Domain layers)
 
 ---- **repository**/
 
------- <Feature>Repository.kt
+------ [Feature]Repository.kt
 
------- <Feature>RepositoryImpl.kt
+------ [Feature]RepositoryImpl.kt
 
 ---- **datasource**/
 
 ------ local/
 
--------- <Feature>LocalDataSource.kt
+-------- [Feature]LocalDataSource.kt
 
 -------- datastore/
 
----------- <Feature>DatastoreDataSource.kt
+---------- [Feature]DatastoreDataSource.kt
 
 ------ remote/
 
--------- <Feature>RemoteDataSource.kt
+-------- [Feature]RemoteDataSource.kt
 
 -------- ktor/
 
----------- <Feature>KtorApi.kt
+---------- [Feature]KtorApi.kt
 
----------- <Feature>KtorDataSource.kt
+---------- [Feature]KtorDataSource.kt
 
 (together with some additional files/directories that are not specific to the MVI architecture)
 
