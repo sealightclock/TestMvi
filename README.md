@@ -36,9 +36,13 @@ This Android app uses the following specialized technologies:
 
 ------ [Feature]Screen.kt
 
----- model/
+---- **state**/
 
------- [Feature]Model.kt (Presentation layer entity)
+------ [Feature]State.kt (Presentation layer entity and state)
+
+---- **Itent**/
+
+------ [Feature]Intent.kt
 
 ------ [Feature]UiMapper.kt (for conversion between Presentation and Domain layers)
 
